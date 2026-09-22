@@ -4,8 +4,8 @@ import { supabase, ADMIN_EMAIL } from './config.js';
 let currentUser = null;
 let currentBalance = 0;
 let servicesList = [];
+let selectedService = null;
 
-// 1. App Initialization
 async function initUserDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -14,42 +14,46 @@ async function initUserDashboard() {
   }
   currentUser = user;
   
-  if(document.getElementById('userEmailDisplay')) {
-    document.getElementById('userEmailDisplay').innerText = user.email;
-  }
+  if(document.getElementById('userEmailDisplay')) document.getElementById('userEmailDisplay').innerText = user.email;
 
-  // Check Admin
   if (user.email === ADMIN_EMAIL && document.getElementById('adminPanelLink')) {
     document.getElementById('adminPanelLink').classList.remove('hidden');
-    document.getElementById('adminPanelLink').classList.add('block');
+    document.getElementById('adminPanelLink').classList.add('flex');
   }
 
-  // Get Balance
   const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user.id).single();
   if (profile && document.getElementById('userBalanceDisplay')) {
     currentBalance = Number(profile.balance || 0);
-    document.getElementById('userBalanceDisplay').innerText = `${currentBalance.toLocaleString()} MMK`;
+    document.getElementById('userBalanceDisplay').innerText = `${currentBalance.toLocaleString()} Ks`;
   }
 
   await loadServicesFromDB();
 }
 
-// Menu (အဆက်လေး) Toggle Function
-window.toggleMenu = function(event) {
-  event.stopPropagation();
-  const menu = document.getElementById('dropdownMenu');
-  if (menu) menu.classList.toggle('hidden');
+// ==========================================
+// Side Drawer Sidebar လုပ်ဆောင်ချက်များ
+// ==========================================
+window.openDrawer = function() {
+  const drawer = document.getElementById('sideDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  
+  backdrop.classList.remove('hidden');
+  setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+  
+  drawer.classList.remove('translate-x-full');
 };
 
-window.addEventListener('click', (e) => {
-  const menu = document.getElementById('dropdownMenu');
-  const btn = document.getElementById('menuBtn');
-  if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
-    menu.classList.add('hidden');
-  }
-});
+window.closeDrawer = function() {
+  const drawer = document.getElementById('sideDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  
+  drawer.classList.add('translate-x-full');
+  backdrop.classList.add('opacity-0');
+  setTimeout(() => backdrop.classList.add('hidden'), 300);
+};
 
-// Load Services from Database
+// ==========================================
+
 async function loadServicesFromDB() {
   const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
   if (!error && data) {
@@ -58,7 +62,6 @@ async function loadServicesFromDB() {
   renderServiceOptions('All');
 }
 
-// Category Filter
 window.filterCategory = function(platform) {
   const buttons = document.querySelectorAll('.category-btn');
   buttons.forEach(btn => {
@@ -82,13 +85,11 @@ function renderServiceOptions(category) {
   filtered.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
-    opt.textContent = `[ID: ${s.provider_service_id}] ➔ ${s.name} - ${s.rate} MMK`;
+    opt.textContent = `🔵 ID: ${s.provider_service_id || s.id.slice(0,3)} | ${s.name} - (${s.rate} Ks)`;
     select.appendChild(opt);
   });
   resetDetails();
 }
-
-let selectedService = null;
 
 document.getElementById('serviceSelect')?.addEventListener('change', (e) => {
   const serviceId = e.target.value;
@@ -96,9 +97,8 @@ document.getElementById('serviceSelect')?.addEventListener('change', (e) => {
 
   if (selectedService) {
     document.getElementById('serviceDetailsBox').classList.remove('hidden');
-    // Grid Box ထဲသို့ Data ထည့်ခြင်း
-    document.getElementById('detailTime').innerText = selectedService.time || '-';
-    document.getElementById('detailRate').innerText = selectedService.rate.toLocaleString();
+    document.getElementById('detailNote').innerText = selectedService.note || "မှတ်ချက်မရှိပါ။";
+    document.getElementById('detailTime').innerText = selectedService.time || "တွက်ချက်နေဆဲ";
     document.getElementById('detailMin').innerText = selectedService.min_qty.toLocaleString();
     document.getElementById('detailMax').innerText = selectedService.max_qty.toLocaleString();
     calculatePrice();
@@ -113,9 +113,9 @@ function calculatePrice() {
   const qty = parseInt(document.getElementById('orderQuantity').value) || 0;
   if (selectedService && qty > 0) {
     const total = Math.ceil((qty / 1000) * selectedService.rate);
-    document.getElementById('totalCharge').innerText = `${total.toLocaleString()} MMK`;
+    document.getElementById('totalCharge').innerText = `${total.toLocaleString()} Ks`;
   } else {
-    document.getElementById('totalCharge').innerText = "0 MMK";
+    document.getElementById('totalCharge').innerText = "0 Ks";
   }
 }
 
@@ -124,7 +124,9 @@ function resetDetails() {
   const box = document.getElementById('serviceDetailsBox');
   if(box) box.classList.add('hidden');
   const charge = document.getElementById('totalCharge');
-  if(charge) charge.innerText = "0 MMK";
+  if(charge) charge.innerText = "0 Ks";
+  const time = document.getElementById('detailTime');
+  if(time) time.innerText = "ရွေးချယ်ပါ";
 }
 
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
@@ -147,29 +149,46 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.innerText = "Processing...";
 
-  const { error: orderError } = await supabase.from('orders').insert([{
+  const { data: newOrder, error: orderError } = await supabase.from('orders').insert([{
     user_id: currentUser.id,
-    service_id: selectedService.provider_service_id, // Main provider's service ID
+    service_id: selectedService.provider_service_id,
     service_name: selectedService.name,
     target_link: link,
     quantity: qty,
     charge: total,
     status: 'pending'
-  }]);
+  }]).select().single();
 
   if (orderError) {
     alert("Order တင်ရာတွင် အမှားရှိပါသည်: " + orderError.message);
     btn.disabled = false;
-    btn.innerText = "Order တင်မည်";
+    btn.innerText = "🚀 Order တင်မည်";
     return;
   }
 
   const newBalance = currentBalance - total;
   await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
 
-  alert("Order အောင်မြင်စွာ တင်ပြီးပါပြီ။");
-  window.location.reload();
+  // Show Success Modal
+  document.getElementById('modalOrderId').innerText = `#${newOrder.id.slice(0, 4).toUpperCase()}`;
+  document.getElementById('modalLink').innerText = link;
+  document.getElementById('modalQty').innerText = qty.toLocaleString();
+  document.getElementById('modalCharge').innerText = `${total.toLocaleString()} Ks`;
+  document.getElementById('modalBal').innerText = `${newBalance.toLocaleString()} Ks`;
+
+  const modal = document.getElementById('successModal');
+  const content = document.getElementById('modalContent');
+  modal.classList.remove('hidden');
+  
+  setTimeout(() => {
+    content.classList.remove('scale-95', 'opacity-0');
+    content.classList.add('scale-100', 'opacity-100');
+  }, 10);
 });
+
+window.closeSuccessModal = function() {
+  window.location.reload();
+};
 
 document.getElementById('logoutBtn')?.addEventListener('click', async () => {
   await supabase.auth.signOut();
