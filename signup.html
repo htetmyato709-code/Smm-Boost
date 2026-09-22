@@ -15,33 +15,87 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 relative">
 
-  <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6">
+  <!-- Signup Form Container -->
+  <div id="signupContainer" class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 transition-all duration-500">
     <div class="text-center space-y-2">
       <h1 class="text-2xl font-bold tracking-wide text-indigo-400">Create Account</h1>
       <p class="text-xs text-slate-400">SMM Boost ဝန်ဆောင်မှုများကို စတင်အသုံးပြုရန် အကောင့်ဖွင့်ပါ</p>
     </div>
 
+    <!-- Error Message Box (Hidden by default) -->
+    <div id="errorBox" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-xl text-center font-medium"></div>
+
     <form id="signupForm" class="space-y-4">
+      <!-- Username Field -->
       <div>
-        <label class="block text-xs text-slate-400 mb-1.5">Email Address</label>
-        <input type="email" id="signupEmail" required placeholder="example@email.com" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
-      </div>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1.5">Password</label>
-        <input type="password" id="signupPassword" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+        <label class="block text-xs text-slate-400 mb-1.5">Username (အမည်)</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">👤</span>
+          <input type="text" id="signupUsername" required placeholder="Mg Mg" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
       </div>
 
-      <button type="submit" id="signupBtn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium text-sm transition">Sign Up</button>
+      <!-- Email Field -->
+      <div>
+        <label class="block text-xs text-slate-400 mb-1.5">Email Address</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">✉️</span>
+          <input type="email" id="signupEmail" required placeholder="example@email.com" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Password Field -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">🔒</span>
+            <input type="password" id="signupPassword" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+        
+        <!-- Confirm Password Field -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Confirm Password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">✅</span>
+            <input type="password" id="signupConfirmPassword" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="signupBtn" class="w-full py-3 mt-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-sm transition shadow-lg shadow-indigo-600/30">
+        Sign Up
+      </button>
     </form>
 
     <div class="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
-      အကောင့်ရှိပြီးသားလား? <a href="login.html" class="text-indigo-400 hover:underline">Log In ဝင်ပါ</a>
+      အကောင့်ရှိပြီးသားလား? <a href="login.html" class="text-indigo-400 font-bold hover:underline">Log In ဝင်ပါ</a>
+    </div>
+  </div>
+
+  <!-- Success Modal Overlay (အကောင့်ပွင့်သွားလျှင် ပြမည့်စာ) -->
+  <div id="successModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-center space-y-5 transform transition-all scale-95 opacity-0" id="modalContent">
+      <div class="w-20 h-20 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border-2 border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.4)]">
+        <span class="text-4xl text-emerald-500 font-bold">🎉</span>
+      </div>
+      
+      <div class="space-y-2">
+        <h2 class="text-2xl font-black text-white tracking-wide">ဂုဏ်ယူပါတယ်!</h2>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          <span class="text-indigo-400 font-bold" id="displayUsername">User</span> အနေဖြင့် SMM Boost တွင်<br>အကောင့်သစ်ကို အောင်မြင်စွာ ဖွင့်လှစ်ပြီးပါပြီ။
+        </p>
+      </div>
+
+      <button onclick="goToLogin()" class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/30">
+        Login ဝင်မည် ➔
+      </button>
     </div>
   </div>
 
   <script type="module" src="js/auth.js"></script>
 </body>
 </html>
-
