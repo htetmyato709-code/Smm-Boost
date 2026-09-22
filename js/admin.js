@@ -140,7 +140,7 @@ window.loadPendingDeposits = async function() {
         <td class="py-3 px-2 font-medium text-slate-700">${dep.user_email}</td>
         <td class="py-3 px-2 text-amber-600 text-xs">${dep.payment_method}</td>
         <td class="py-3 px-2 font-bold text-emerald-600">${Number(dep.amount).toLocaleString()} Ks</td>
-        <td class="py-3 px-2 text-slate-400 font-mono text-[10px]">${dep.transaction_id}</td>
+        <td class="py-3 px-2 text-slate-400 font-mono text-[10px]">${dep.sender_name || '-'}</td>
         <td class="py-3 px-2 space-x-1">
           <button onclick="approveDeposit('${dep.id}', '${dep.user_id}', ${dep.amount})" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-bold">Approve</button>
           <button onclick="rejectDeposit('${dep.id}')" class="px-2 py-1 bg-rose-100 text-rose-700 rounded text-xs font-bold">Reject</button>
