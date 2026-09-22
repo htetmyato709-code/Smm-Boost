@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>24/7 AI Support - SMM Boost</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .chat-scroll::-webkit-scrollbar { width: 4px; }
+    .chat-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="glass sticky top-0 z-40 px-4 py-3 flex justify-between items-center border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <a href="user-dashboard.html" class="text-slate-400 hover:text-white text-lg">←</a>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-sm shadow-[0_0_10px_rgba(99,102,241,0.3)]">
+          🤖
+        </div>
+        <div>
+          <h1 class="text-sm font-bold text-white leading-tight">24/7 AI Assistant</h1>
+          <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online
+          </p>
+        </div>
+      </div>
+    </div>
+    <span class="text-xs text-slate-500 font-mono">Automated Support</span>
+  </header>
+
+  <!-- Chat Box Container -->
+  <main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col justify-between space-y-4">
+    
+    <!-- Messages Scroll Area -->
+    <div id="chatMessages" class="flex-1 overflow-y-auto space-y-3.5 pr-1 chat-scroll max-h-[75vh]">
+      <!-- Bot Welcome Message -->
+      <div class="flex items-start gap-2.5">
+        <div class="w-7 h-7 rounded-full bg-indigo-600/40 border border-indigo-500/40 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">🤖</div>
+        <div class="glass bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl rounded-tl-sm text-xs leading-relaxed max-w-[85%] text-slate-200">
+          မင်္ဂလာပါခင်ဗျာ! ကျွန်တော်ကတော့ StarGrow ရဲ့ 24/7 AI အကူအညီပေးရေး စနစ်ဖြစ်ပါတယ်။<br><br>
+          အကူအညီလိုအပ်နေသော သင်၏ <strong>Order ID (နံပါတ်)</strong> ကို အောက်တွင် ရိုက်ထည့်ပေးပါခင်ဗျာ။ (ဥပမာ - <code class="text-indigo-400 font-bold">1</code> သို့မဟုတ် <code class="text-indigo-400 font-bold">#1</code>)
+        </div>
+      </div>
+    </div>
+
+    <!-- Options Box (Action Buttons) -->
+    <div id="optionsContainer" class="hidden flex flex-col gap-2 pt-2 border-t border-slate-800/80">
+      <p class="text-[11px] text-slate-400 mb-0.5 font-medium">အကူအညီ လိုအပ်သည့်အချက်ကို ရွေးချယ်ပါ -</p>
+      <button onclick="handleIssueSelection('speed_up')" class="w-full text-left px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-indigo-500/30 text-xs font-semibold text-indigo-300 transition flex items-center gap-2">
+        <span>⚡</span> နှေးနေလို့ မြန်ပေးပါ
+      </button>
+      <button onclick="handleIssueSelection('refill')" class="w-full text-left px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-xs font-semibold text-amber-300 transition flex items-center gap-2">
+        <span>🔄</span> ပြန်ကျသွားလို့ ပြန်ဖြည့်ပေးပါ (Refill)
+      </button>
+      <button onclick="handleIssueSelection('cancel')" class="w-full text-left px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-rose-500/30 text-xs font-semibold text-rose-300 transition flex items-center gap-2">
+        <span>❌</span> Order ပယ်ဖျက်ပေးပါ (Cancel)
+      </button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="chatForm" class="pt-2">
+      <div class="relative flex items-center">
+        <input type="text" id="orderIdInput" required placeholder="Order ID ရိုက်ထည့်ပါ..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl pl-4 pr-24 py-3.5 text-sm focus:outline-none focus:border-indigo-500">
+        <button type="submit" id="sendBtn" class="absolute right-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-600/30">
+          ပို့မည်
+        </button>
+      </div>
+    </form>
+
+  </main>
+
+  <script type="module" src="js/ai-support.js"></script>
+</body>
+</html>
