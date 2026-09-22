@@ -32,9 +32,7 @@
     </div>
   </header>
 
-  <!-- =============================== -->
-  <!-- SIDE DRAWER MENU (ပုံစံသစ်) -->
-  <!-- =============================== -->
+  <!-- Side Drawer Menu -->
   <div id="drawerBackdrop" onclick="closeDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300"></div>
   
   <div id="sideDrawer" class="fixed top-0 right-0 h-full w-72 bg-[#0B1120] border-l border-slate-800 z-[100] transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
@@ -46,29 +44,28 @@
       <button onclick="closeDrawer()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
     </div>
     
-    <div class="flex-1 py-6 flex flex-col gap-3 px-4 overflow-y-auto">
-      <a href="user-dashboard.html" class="px-5 py-4 text-sm text-white bg-indigo-600/20 border border-indigo-500/30 rounded-2xl transition flex items-center gap-3">
-        <span class="text-xl">🏠</span> ပင်မစာမျက်နှာ (Home)
+    <div class="flex-1 py-6 flex flex-col gap-2 px-4 overflow-y-auto">
+      <a href="user-dashboard.html" class="px-5 py-3.5 text-sm text-white bg-indigo-600/20 border border-indigo-500/30 rounded-2xl transition">
+        ပင်မစာမျက်နှာ (Home)
       </a>
-      <a href="topup.html" class="px-5 py-4 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition flex items-center gap-3">
-        <span class="text-xl">💳</span> ငွေဖြည့်ရန် (Topup)
+      <a href="topup.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
+        ငွေဖြည့်ရန် (Topup)
       </a>
-      <a href="orders.html" class="px-5 py-4 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition flex items-center gap-3">
-        <span class="text-xl">📜</span> အော်ဒါမှတ်တမ်း (History)
+      <a href="orders.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
+        အော်ဒါမှတ်တမ်း (History)
       </a>
       
-      <a href="admin-dashboard.html" id="adminPanelLink" class="hidden mt-6 px-5 py-4 text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-2xl font-bold transition flex items-center gap-3">
-        <span class="text-xl">⚙️</span> Admin Panel သို့သွားရန်
+      <a href="admin-dashboard.html" id="adminPanelLink" class="hidden mt-4 px-5 py-3.5 text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-2xl font-bold transition">
+        Admin Panel သို့သွားရန်
       </a>
     </div>
 
     <div class="p-5 border-t border-slate-800">
-      <button onclick="openLogoutModal()" class="w-full text-left px-5 py-4 text-sm text-rose-400 hover:bg-rose-500/10 rounded-2xl transition flex items-center gap-3">
-        <span class="text-xl">🚪</span> အကောင့်ထွက်မည် (Logout)
+      <button onclick="openLogoutModal()" class="w-full text-left px-5 py-3.5 text-sm text-rose-400 hover:bg-rose-500/10 rounded-2xl transition">
+        အကောင့်ထွက်မည် (Logout)
       </button>
     </div>
   </div>
-  <!-- =============================== -->
 
   <main class="max-w-xl mx-auto p-4 md:p-6 mt-4 space-y-6">
 
@@ -77,32 +74,38 @@
       <h2 class="text-base font-bold text-indigo-300 mb-6">New Order တင်ရန်</h2>
       <form id="orderForm" class="space-y-5">
         
-        <!-- Category ရွေးရန် -->
+        <!-- Custom Category Dropdown with Official Logo -->
         <div>
           <label class="block text-xs text-slate-400 mb-2">အမျိုးအစား (Category)</label>
           <div class="relative">
-            <select id="categorySelect" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 appearance-none">
-              <option value="">-- Category ရွေးချယ်ပါ --</option>
-            </select>
-            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">▼</span>
+            <button type="button" onclick="toggleCatDropdown(event)" id="catDropdownBtn" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 flex items-center justify-between">
+              <span id="selectedCatText" class="text-slate-400 flex items-center gap-2.5">
+                Category ရွေးချယ်ပါ
+              </span>
+              <span class="text-slate-500 text-xs">▼</span>
+            </button>
+            
+            <div id="catDropdownList" class="hidden absolute left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-30 max-h-56 overflow-y-auto divide-y divide-slate-800">
+              <!-- JS ဖြင့် Logo နှင့်တကွ ဖြည့်သွင်းမည် -->
+            </div>
           </div>
         </div>
 
-        <!-- Service ရွေးရန် (Category ရွေးပြီးမှ ပွင့်မည်) -->
+        <!-- Service ရွေးရန် -->
         <div>
           <label class="block text-xs text-slate-400 mb-2">ဝန်ဆောင်မှု (Service)</label>
           <div class="relative">
             <select id="serviceSelect" disabled required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 disabled:opacity-50 appearance-none">
               <option value="">-- အရင်ဆုံး Category ရွေးပါ --</option>
             </select>
-            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">▼</span>
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none text-xs">▼</span>
           </div>
         </div>
 
-        <!-- NOTES & Info Box -->
+        <!-- NOTES Box -->
         <div id="serviceDetailsBox" class="hidden bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-3">
           <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
-            <span class="text-xs font-bold text-white bg-indigo-500 px-2.5 py-1 rounded-md">ID: <span id="displayNumId">0</span></span>
+            <span class="text-xs font-bold text-white bg-indigo-600 px-2.5 py-1 rounded-md">ID: <span id="displayNumId">0</span></span>
             <span class="text-sm font-bold text-indigo-300 truncate" id="displayTitle">-</span>
           </div>
           <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed" id="detailNote">-</p>
@@ -111,27 +114,22 @@
           </div>
         </div>
 
-        <!-- Inputs -->
+        <!-- Link -->
         <div>
           <label class="block text-xs text-slate-400 mb-2">Link (လင့်ခ်)</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">🔗</span>
-            <input type="url" id="orderLink" required placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500">
-          </div>
+          <input type="url" id="orderLink" required placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
+        <!-- Quantity -->
         <div>
           <label class="block text-xs text-slate-400 mb-2">Quantity (အရေအတွက်)</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">🧮</span>
-            <input type="number" id="orderQuantity" required placeholder="ဥပမာ - 1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500">
-          </div>
+          <input type="number" id="orderQuantity" required placeholder="ဥပမာ - 1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
         <!-- Time & Price -->
         <div class="flex flex-col gap-3 pt-2">
           <div class="flex justify-between items-center bg-slate-900/50 px-4 py-3.5 rounded-xl border border-slate-800">
-            <span class="text-sm font-medium text-slate-300">⏱ Order ပျမ်းမျှ ကြာချိန်:</span>
+            <span class="text-sm font-medium text-slate-300">Order ပျမ်းမျှ ကြာချိန်:</span>
             <span class="text-sm font-bold text-amber-400" id="detailTime">-</span>
           </div>
           <div class="flex justify-between items-center bg-indigo-900/20 px-4 py-3.5 rounded-xl border border-indigo-500/30">
@@ -141,40 +139,34 @@
         </div>
 
         <button type="submit" id="submitOrderBtn" class="w-full mt-2 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-sm transition shadow-lg shadow-indigo-600/20">
-          🚀 Order တင်မည်
+          Order တင်မည်
         </button>
       </form>
     </div>
 
   </main>
 
-  <!-- =============================== -->
-  <!-- MODALS -->
-  <!-- =============================== -->
-  
-  <!-- Logout Confirmation Modal -->
+  <!-- Logout Modal -->
   <div id="logoutModal" class="hidden fixed inset-0 z-[120] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl">
-       <span class="text-4xl block mb-2">👋</span>
        <h3 class="text-lg font-bold text-white">အကောင့်ထွက်မည်</h3>
        <p class="text-sm text-slate-400 mt-2">SMM Boost မှ ထွက်ရန် သေချာပါသလား?</p>
        <div class="flex gap-3 mt-6">
-          <button onclick="closeLogoutModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">မထွက်ပါ</button>
-          <button onclick="confirmLogout()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition shadow-lg shadow-rose-600/20">ထွက်မည်</button>
+          <button onclick="closeLogoutModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition text-sm">မထွက်ပါ</button>
+          <button onclick="confirmLogout()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition text-sm">ထွက်မည်</button>
        </div>
     </div>
   </div>
 
-  <!-- Success Modal (Order ID ထင်ထင်ရှားရှားပါဝင်သည်) -->
+  <!-- Success Modal -->
   <div id="successModal" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative text-center space-y-4 transform transition-all scale-95 opacity-0" id="modalContent">
-      <div class="w-16 h-16 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border-2 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-        <span class="text-3xl text-emerald-500 font-bold">✓</span>
+      <div class="w-14 h-14 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500">
+        <span class="text-2xl text-emerald-400 font-bold">✓</span>
       </div>
       <h2 class="text-lg font-bold text-white leading-tight">Order အောင်မြင်စွာ<br>တင်ပြီးပါပြီ!</h2>
       
       <div class="bg-slate-950/80 rounded-2xl p-4 text-left space-y-3 border border-slate-800 mt-4">
-        <!-- Order ID ကို ထင်ရှားစွာပြသခြင်း -->
         <div class="text-center border-b border-slate-800 pb-3 mb-2">
           <p class="text-xs text-slate-400 mb-1">YOUR ORDER ID</p>
           <h1 class="text-3xl font-black text-emerald-400 tracking-wider" id="modalOrderId">#0</h1>
@@ -198,7 +190,7 @@
         </div>
       </div>
 
-      <button onclick="closeSuccessModal()" class="w-full mt-4 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition">
+      <button onclick="closeSuccessModal()" class="w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition">
         အိုကေ (OK)
       </button>
     </div>
@@ -206,5 +198,4 @@
 
   <script type="module" src="js/user.js"></script>
 </body>
-  </html>
-  
+</html>
