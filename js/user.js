@@ -5,9 +5,8 @@ let currentUser = null;
 let currentBalance = 0;
 let servicesList = [];
 let selectedService = null;
-let currentCategory = "";
 
-// Brand Logos (TikTok, Telegram, Facebook, Instagram, YouTube)
+// Official Logo ပုံများ
 const brandLogos = {
   'tiktok': 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg',
   'telegram': 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg',
@@ -42,7 +41,7 @@ async function initUserDashboard() {
   await loadServicesFromDB();
 }
 
-// Drawer Controls
+// Side Drawer
 window.openDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
@@ -59,7 +58,7 @@ window.closeDrawer = function() {
   setTimeout(() => backdrop.classList.add('hidden'), 300);
 };
 
-// Logout Modal
+// Logout
 window.openLogoutModal = function() {
   closeDrawer();
   document.getElementById('logoutModal').classList.remove('hidden');
@@ -72,18 +71,22 @@ window.confirmLogout = async function() {
   window.location.href = "login.html";
 };
 
-// Custom Category Dropdown Toggle
+// Dropdown Toggles
 window.toggleCatDropdown = function(e) {
   e.stopPropagation();
+  document.getElementById('servDropdownList').classList.add('hidden');
   document.getElementById('catDropdownList').classList.toggle('hidden');
 };
 
-window.addEventListener('click', (e) => {
-  const dropdown = document.getElementById('catDropdownList');
-  const btn = document.getElementById('catDropdownBtn');
-  if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-    dropdown.classList.add('hidden');
-  }
+window.toggleServDropdown = function(e) {
+  e.stopPropagation();
+  document.getElementById('catDropdownList').classList.add('hidden');
+  document.getElementById('servDropdownList').classList.toggle('hidden');
+};
+
+window.addEventListener('click', () => {
+  document.getElementById('catDropdownList')?.classList.add('hidden');
+  document.getElementById('servDropdownList')?.classList.add('hidden');
 });
 
 // Load Services
@@ -95,7 +98,7 @@ async function loadServicesFromDB() {
   populateCategories();
 }
 
-// Category List တွင် တကယ့် Logo ပုံများဖြင့် ပြသခြင်း
+// Populate Categories
 function populateCategories() {
   const list = document.getElementById('catDropdownList');
   if (!list) return;
@@ -108,11 +111,10 @@ function populateCategories() {
 
   for (const [catName, platformName] of Object.entries(categoryMap)) {
     const logoUrl = brandLogos[platformName.toLowerCase()] || brandLogos['tiktok'];
-    
     const item = document.createElement('div');
     item.className = "flex items-center gap-3 px-4 py-3 hover:bg-slate-800 cursor-pointer transition text-sm text-slate-200";
     item.innerHTML = `
-      <img src="${logoUrl}" class="w-5 h-5 rounded-md object-contain bg-white/10 p-0.5" alt="${platformName}">
+      <img src="${logoUrl}" class="w-6 h-6 rounded-md object-contain bg-black/40 p-0.5 border border-slate-700" alt="${platformName}">
       <span class="font-medium">${catName}</span>
     `;
     item.onclick = () => selectCategory(catName, platformName, logoUrl);
@@ -120,45 +122,70 @@ function populateCategories() {
   }
 }
 
-// Category တစ်ခုအား ရွေးချယ်လိုက်သည့်အခါ
+// Category ရွေးပြီးသည့်အခါ Service List Box တည်ဆောက်ခြင်း
 function selectCategory(catName, platformName, logoUrl) {
-  currentCategory = catName;
   document.getElementById('selectedCatText').innerHTML = `
-    <img src="${logoUrl}" class="w-5 h-5 rounded-md object-contain bg-white/10 p-0.5" alt="${platformName}">
+    <img src="${logoUrl}" class="w-6 h-6 rounded-md object-contain bg-black/40 p-0.5 border border-slate-700" alt="${platformName}">
     <span class="text-white font-medium">${catName}</span>
   `;
   document.getElementById('catDropdownList').classList.add('hidden');
 
-  // Service Dropdown ကို ဖွင့်ပြီး သက်ဆိုင်ရာ Service များသာ ထည့်သွင်းခြင်း
-  const servSelect = document.getElementById('serviceSelect');
-  servSelect.innerHTML = '<option value="">-- Service တစ်ခုရွေးပါ --</option>';
-  servSelect.disabled = false;
+  // Enable Service Dropdown
+  const servBtn = document.getElementById('servDropdownBtn');
+  servBtn.disabled = false;
+  document.getElementById('selectedServText').innerText = "-- Service တစ်ခုရွေးပါ --";
+
+  // Render Service Cards in Box
+  const servList = document.getElementById('servDropdownList');
+  servList.innerHTML = '';
 
   const filtered = servicesList.filter(s => s.category === catName);
   filtered.forEach(s => {
-    servSelect.innerHTML += `<option value="${s.id}">ID: ${s.numeric_id || '-'} - ${s.name} (${s.rate} Ks)</option>`;
+    const card = document.createElement('div');
+    card.className = "bg-slate-950/70 hover:bg-slate-800 border border-slate-800 p-3 rounded-xl cursor-pointer transition space-y-2";
+    card.innerHTML = `
+      <div class="flex items-start gap-2">
+        <span class="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+          ${s.numeric_id || '1'}
+        </span>
+        <span class="text-xs font-semibold text-slate-200 leading-snug">
+          ${s.name}
+        </span>
+      </div>
+      <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800/80">
+        <span class="font-bold text-blue-400">${Number(s.rate).toLocaleString()} Ks / 1K</span>
+        <span class="text-slate-400">Min: ${Number(s.min_qty).toLocaleString()} - Max: ${Number(s.max_qty).toLocaleString()}</span>
+      </div>
+    `;
+    card.onclick = () => selectServiceItem(s);
+    servList.appendChild(card);
   });
 
   resetDetails();
 }
 
-document.getElementById('serviceSelect')?.addEventListener('change', (e) => {
-  const serviceId = e.target.value;
-  selectedService = servicesList.find(s => s.id === serviceId);
+// Service ရွေးချယ်မှုပြုလုပ်ခြင်း
+function selectServiceItem(service) {
+  selectedService = service;
+  
+  // Update Dropdown Button Text
+  document.getElementById('selectedServText').innerHTML = `
+    <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+      ${service.numeric_id || '1'}
+    </span>
+    <span class="text-white truncate font-medium text-xs">${service.name} (${Number(service.rate).toLocaleString()} Ks)</span>
+  `;
+  document.getElementById('servDropdownList').classList.add('hidden');
 
-  if (selectedService) {
-    document.getElementById('serviceDetailsBox').classList.remove('hidden');
-    document.getElementById('displayNumId').innerText = selectedService.numeric_id || 'N/A';
-    document.getElementById('displayTitle').innerText = selectedService.name;
-    document.getElementById('detailNote').innerText = selectedService.note || "မှတ်ချက်မရှိပါ။";
-    document.getElementById('detailTime').innerText = selectedService.time || "တွက်ချက်နေဆဲ";
-    document.getElementById('detailMin').innerText = selectedService.min_qty.toLocaleString();
-    document.getElementById('detailMax').innerText = selectedService.max_qty.toLocaleString();
-    calculatePrice();
-  } else {
-    resetDetails();
-  }
-});
+  // Fill Notes & Info
+  document.getElementById('serviceDetailsBox').classList.remove('hidden');
+  document.getElementById('detailNote').innerText = service.note || "မှတ်ချက်မရှိပါ။";
+  document.getElementById('detailTime').innerText = service.time || "တွက်ချက်နေဆဲ";
+  document.getElementById('detailMin').innerText = Number(service.min_qty).toLocaleString();
+  document.getElementById('detailMax').innerText = Number(service.max_qty).toLocaleString();
+  
+  calculatePrice();
+}
 
 document.getElementById('orderQuantity')?.addEventListener('input', calculatePrice);
 
@@ -245,4 +272,3 @@ window.closeSuccessModal = function() {
 };
 
 initUserDashboard();
-                                                                                           
