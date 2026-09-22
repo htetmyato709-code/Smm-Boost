@@ -8,130 +8,96 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .glass {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-16">
 
-  <div class="max-w-2xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between glass p-4 rounded-2xl">
-      <a href="user-dashboard.html" class="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1">
-        ← Back to Dashboard
-      </a>
-      <span class="text-sm font-semibold">ငွေဖြည့်သွင်းခြင်း (Add Funds)</span>
+  <!-- Header -->
+  <header class="glass sticky top-0 z-40 px-4 py-3 flex justify-between items-center border-b border-slate-800">
+    <div class="flex items-center gap-2">
+      <a href="user-dashboard.html" class="text-slate-400 hover:text-white text-lg">←</a>
+      <h1 class="text-base font-bold text-indigo-400">ငွေဖြည့်သွင်းခြင်း (Topup)</h1>
     </div>
+    <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30">
+      <span class="text-xs font-bold text-emerald-400" id="currentBalanceDisplay">0 Ks</span>
+    </div>
+  </header>
 
-    <!-- Payment Accounts Details (Auto Sync from Admin Settings) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="glass p-5 rounded-2xl border-l-4 border-l-blue-500 space-y-1">
-        <span class="text-xs text-blue-400 font-semibold uppercase tracking-wider">KPay Account</span>
-        <p class="text-lg font-bold" id="displayKpayNo">Loading...</p>
-        <p class="text-xs text-slate-400" id="displayKpayName">Name: Loading...</p>
+  <main class="max-w-md mx-auto p-4 space-y-5 mt-2">
+
+    <!-- Payment Methods Information -->
+    <div class="space-y-3">
+      <!-- KPay Info Card -->
+      <div class="bg-blue-950/30 border border-blue-800/40 p-4 rounded-2xl space-y-1 relative">
+        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">KBZPay Account</span>
+        <div class="flex justify-between items-center pt-1">
+          <div>
+            <p class="text-base font-black text-white" id="kpayNumberText">Loading...</p>
+            <p class="text-xs text-slate-400" id="kpayNameText">Name: Loading...</p>
+          </div>
+          <button type="button" onclick="copyKpay()" class="text-xs bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white px-3 py-1.5 rounded-lg border border-blue-500/30 transition">Copy</button>
+        </div>
       </div>
 
-      <div class="glass p-5 rounded-2xl border-l-4 border-l-yellow-500 space-y-1">
-        <span class="text-xs text-yellow-400 font-semibold uppercase tracking-wider">WavePay Account</span>
-        <p class="text-lg font-bold" id="displayWaveNo">Loading...</p>
-        <p class="text-xs text-slate-400" id="displayWaveName">Name: Loading...</p>
+      <!-- WavePay Info Card -->
+      <div class="bg-amber-950/20 border border-amber-800/40 p-4 rounded-2xl space-y-1 relative">
+        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">WavePay Account</span>
+        <div class="flex justify-between items-center pt-1">
+          <div>
+            <p class="text-base font-black text-white" id="waveNumberText">Loading...</p>
+            <p class="text-xs text-slate-400" id="waveNameText">Name: Loading...</p>
+          </div>
+          <button type="button" onclick="copyWave()" class="text-xs bg-amber-600/30 hover:bg-amber-600 text-amber-300 hover:text-white px-3 py-1.5 rounded-lg border border-amber-500/30 transition">Copy</button>
+        </div>
       </div>
     </div>
 
-    <!-- Deposit Submission Form -->
-    <div class="glass p-6 md:p-8 rounded-3xl space-y-5">
-      <h2 class="text-base font-semibold text-slate-200">ငွေလွှဲပြေစာ ပေးပို့ရန်</h2>
+    <!-- Topup Form -->
+    <div class="glass p-5 rounded-3xl space-y-4">
+      <h2 class="text-sm font-bold text-slate-200">ငွေလွှဲအချက်အလက် ပေးပို့ရန်</h2>
 
       <form id="topupForm" class="space-y-4">
+        <!-- Payment Method Select -->
         <div>
-          <label class="block text-xs text-slate-400 mb-1.5">ငွေလွှဲခဲ့သည့် နည်းလမ်း (Payment Method)</label>
-          <select id="paymentMethod" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
-            <option value="KPay">KPay</option>
+          <label class="block text-xs text-slate-400 mb-1.5">ငွေလွှဲသည့်နည်းလမ်း (Method)</label>
+          <select id="payMethod" required class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+            <option value="KPay">KBZPay (KPay)</option>
             <option value="WavePay">WavePay</option>
           </select>
         </div>
 
+        <!-- Amount -->
         <div>
-          <label class="block text-xs text-slate-400 mb-1.5">ငွေပမာဏ (MMK)</label>
-          <input type="number" id="depositAmount" required placeholder="ဥပမာ - 5000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs text-slate-400 mb-1.5">လွှဲငွေပမာဏ (Amount)</label>
+          <input type="number" id="depositAmount" min="500" required placeholder="အနည်းဆုံး 500 Ks" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
+        <!-- Sender Name (Transaction ID အစား) -->
         <div>
-          <label class="block text-xs text-slate-400 mb-1.5">ငွေလွှဲ Transaction ID (နောက်ဆုံးဂဏန်းများ)</label>
-          <input type="text" id="transactionId" required placeholder="Transaction ID ထည့်ပါ" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs text-slate-400 mb-1.5">ပေးပို့သူ Wave/KPay Name (ငွေလွှဲသူအမည်)</label>
+          <input type="text" id="senderName" required placeholder="ဥပမာ - Mg Mg" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
         </div>
 
+        <!-- File Upload (ပြေစာပုံဖိုင်) -->
         <div>
-          <label class="block text-xs text-slate-400 mb-1.5">ပြေစာ Screenshot Image Link (Imgur / Cloud Link)</label>
-          <input type="url" id="screenshotUrl" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          <label class="block text-xs text-slate-400 mb-1.5">ငွေလွှဲပြေစာပုံ (Screenshot File တင်ရန်)</label>
+          <input type="file" id="slipFile" accept="image/*" required class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600/30 file:text-indigo-300 hover:file:bg-indigo-600/50 cursor-pointer">
+          <p class="text-[10px] text-slate-500 mt-1">* ဓာတ်ပုံ သို့မဟုတ် Screenshot ကိုသာ တင်ပေးပါ</p>
         </div>
 
-        <button type="submit" id="submitTopupBtn" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium text-sm transition">
-          ငွေသွင်းတောင်းဆိုချက် ပေးပို့မည် (Submit Deposit)
+        <button type="submit" id="submitTopupBtn" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition shadow-lg shadow-blue-600/20">
+          ငွေဖြည့်တောင်းဆိုမည်
         </button>
       </form>
     </div>
-  </div>
 
-  <script type="module">
-    import { supabase } from './js/config.js';
+  </main>
 
-    // Settings မှ Payment အချက်အလက်များ ဆွဲထုတ်ပြသခြင်း
-    async function loadPaymentDetails() {
-      const { data } = await supabase
-        .from('system_settings')
-        .select('*')
-        .eq('id', 'main_settings')
-        .single();
-
-      if (data) {
-        document.getElementById('displayKpayNo').innerText = data.kpay_number || 'မရှိသေးပါ';
-        document.getElementById('displayKpayName').innerText = `Name: ${data.kpay_name || '-'}`;
-        document.getElementById('displayWaveNo').innerText = data.wave_number || 'မရှိသေးပါ';
-        document.getElementById('displayWaveName').innerText = `Name: ${data.wave_name || '-'}`;
-      }
-    }
-
-    loadPaymentDetails();
-
-    // Topup Form ပို့ခြင်း
-    document.getElementById('topupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('submitTopupBtn');
-      btn.disabled = true;
-      btn.innerText = "Submitting...";
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("ငွေသွင်းရန် အရင် Login ဝင်ပေးပါ။");
-        window.location.href = "login.html";
-        return;
-      }
-
-      const depositData = {
-        user_id: user.id,
-        user_email: user.email,
-        payment_method: document.getElementById('paymentMethod').value,
-        amount: parseFloat(document.getElementById('depositAmount').value),
-        transaction_id: document.getElementById('transactionId').value,
-        screenshot_url: document.getElementById('screenshotUrl').value,
-        status: 'pending'
-      };
-
-      const { error } = await supabase.from('deposits').insert([depositData]);
-
-      if (error) {
-        alert("အမှားအယွင်းရှိပါသည်: " + error.message);
-        btn.disabled = false;
-        btn.innerText = "ငွေသွင်းတောင်းဆိုချက် ပေးပို့မည်";
-      } else {
-        alert("ငွေသွင်းတောင်းဆိုချက် ပို့ပြီးပါပြီ။ Admin ဘက်မှ အတည်ပြုပေးပါမည်။");
-        window.location.href = "user-dashboard.html";
-      }
-    });
-  </script>
+  <script type="module" src="js/topup.js"></script>
 </body>
 </html>
