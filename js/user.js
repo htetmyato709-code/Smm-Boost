@@ -5,8 +5,9 @@ let currentUser = null;
 let currentBalance = 0;
 let servicesList = [];
 let selectedService = null;
+let activePlatformFilter = "All";
 
-// Official Logo ပုံများ
+// Official Logos Matching Provided Images
 const brandLogos = {
   'tiktok': 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg',
   'telegram': 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg',
@@ -41,7 +42,7 @@ async function initUserDashboard() {
   await loadServicesFromDB();
 }
 
-// Side Drawer
+// Side Drawer Controls
 window.openDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
@@ -58,7 +59,7 @@ window.closeDrawer = function() {
   setTimeout(() => backdrop.classList.add('hidden'), 300);
 };
 
-// Logout
+// Logout Controls
 window.openLogoutModal = function() {
   closeDrawer();
   document.getElementById('logoutModal').classList.remove('hidden');
@@ -69,6 +70,29 @@ window.closeLogoutModal = function() {
 window.confirmLogout = async function() {
   await supabase.auth.signOut();
   window.location.href = "login.html";
+};
+
+// Top Platform Filter Buttons
+window.selectPlatformFilter = function(platform) {
+  activePlatformFilter = platform;
+  const buttons = document.querySelectorAll('.platform-tab');
+  buttons.forEach(btn => {
+    btn.className = "platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition";
+  });
+
+  const activeBtn = document.getElementById(`btnPlat-${platform}`);
+  if (activeBtn) {
+    activeBtn.className = "platform-tab active flex items-center gap-2 px-4 py-2 rounded-2xl bg-blue-600 text-white border border-blue-500 text-xs font-semibold whitespace-nowrap transition shadow-md shadow-blue-600/30";
+  }
+
+  populateCategories();
+  
+  // Reset Service Form selection
+  document.getElementById('selectedCatText').innerHTML = 'Category ရွေးချယ်ပါ';
+  const servBtn = document.getElementById('servDropdownBtn');
+  servBtn.disabled = true;
+  document.getElementById('selectedServText').innerText = "-- အရင်ဆုံး Category ရွေးပါ --";
+  resetDetails();
 };
 
 // Dropdown Toggles
@@ -98,18 +122,29 @@ async function loadServicesFromDB() {
   populateCategories();
 }
 
-// Populate Categories
+// Populate Categories based on Platform Filter
 function populateCategories() {
   const list = document.getElementById('catDropdownList');
   if (!list) return;
   list.innerHTML = '';
 
+  let filteredServices = servicesList;
+  if (activePlatformFilter !== "All") {
+    filteredServices = servicesList.filter(s => s.platform.toLowerCase() === activePlatformFilter.toLowerCase());
+  }
+
   let categoryMap = {};
-  servicesList.forEach(s => {
+  filteredServices.forEach(s => {
     categoryMap[s.category] = s.platform;
   });
 
-  for (const [catName, platformName] of Object.entries(categoryMap)) {
+  const categories = Object.entries(categoryMap);
+  if (categories.length === 0) {
+    list.innerHTML = '<div class="px-4 py-3 text-xs text-slate-500">ဝန်ဆောင်မှု မရှိသေးပါ။</div>';
+    return;
+  }
+
+  for (const [catName, platformName] of categories) {
     const logoUrl = brandLogos[platformName.toLowerCase()] || brandLogos['tiktok'];
     const item = document.createElement('div');
     item.className = "flex items-center gap-3 px-4 py-3 hover:bg-slate-800 cursor-pointer transition text-sm text-slate-200";
@@ -122,7 +157,7 @@ function populateCategories() {
   }
 }
 
-// Category ရွေးပြီးသည့်အခါ Service List Box တည်ဆောက်ခြင်း
+// Select Category
 function selectCategory(catName, platformName, logoUrl) {
   document.getElementById('selectedCatText').innerHTML = `
     <img src="${logoUrl}" class="w-6 h-6 rounded-md object-contain bg-black/40 p-0.5 border border-slate-700" alt="${platformName}">
@@ -130,12 +165,10 @@ function selectCategory(catName, platformName, logoUrl) {
   `;
   document.getElementById('catDropdownList').classList.add('hidden');
 
-  // Enable Service Dropdown
   const servBtn = document.getElementById('servDropdownBtn');
   servBtn.disabled = false;
   document.getElementById('selectedServText').innerText = "-- Service တစ်ခုရွေးပါ --";
 
-  // Render Service Cards in Box
   const servList = document.getElementById('servDropdownList');
   servList.innerHTML = '';
 
@@ -164,11 +197,10 @@ function selectCategory(catName, platformName, logoUrl) {
   resetDetails();
 }
 
-// Service ရွေးချယ်မှုပြုလုပ်ခြင်း
+// Select Service
 function selectServiceItem(service) {
   selectedService = service;
   
-  // Update Dropdown Button Text
   document.getElementById('selectedServText').innerHTML = `
     <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] font-bold flex-shrink-0">
       ${service.numeric_id || '1'}
@@ -177,7 +209,6 @@ function selectServiceItem(service) {
   `;
   document.getElementById('servDropdownList').classList.add('hidden');
 
-  // Fill Notes & Info
   document.getElementById('serviceDetailsBox').classList.remove('hidden');
   document.getElementById('detailNote').innerText = service.note || "မှတ်ချက်မရှိပါ။";
   document.getElementById('detailTime').innerText = service.time || "တွက်ချက်နေဆဲ";
@@ -272,3 +303,4 @@ window.closeSuccessModal = function() {
 };
 
 initUserDashboard();
+                                                           
