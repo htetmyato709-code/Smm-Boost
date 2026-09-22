@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - SMM Boost</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row">
 
+  <!-- Sidebar -->
+  <aside class="w-full md:w-64 glass p-6 flex flex-col justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-indigo-400 mb-8 tracking-wider">SMM ADMIN</h2>
+      <nav class="space-y-4">
+        <a href="#settings" class="block py-2.5 px-4 rounded-xl bg-indigo-600/30 text-indigo-300 font-medium border border-indigo-500/30">Settings & API</a>
+        <a href="#deposits" class="block py-2.5 px-4 rounded-xl hover:bg-slate-800/50 transition">Deposits / Topup</a>
+        <a href="#orders" class="block py-2.5 px-4 rounded-xl hover:bg-slate-800/50 transition">Orders</a>
+      </nav>
+    </div>
+    <button id="logoutBtn" class="mt-8 py-2 px-4 rounded-xl bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition text-sm">Logout</button>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-6 md:p-10 space-y-8 overflow-y-auto">
+    
+    <!-- Top Bar -->
+    <div class="flex justify-between items-center glass p-4 rounded-2xl">
+      <div>
+        <h1 class="text-xl font-semibold">Admin Panel</h1>
+        <p class="text-xs text-slate-400" id="adminEmailDisplay">Checking permissions...</p>
+      </div>
+      <span class="px-3 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Admin Authorized</span>
+    </div>
+
+    <!-- Provider & Payment Settings -->
+    <section class="glass p-6 md:p-8 rounded-2xl space-y-6">
+      <h2 class="text-lg font-semibold text-indigo-300 border-b border-slate-800 pb-3">Main Provider & Payment Settings</h2>
+      
+      <form id="settingsForm" class="space-y-6">
+        <!-- Main Provider Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Main Provider API URL</label>
+            <input type="url" id="providerUrl" placeholder="https://provider.com/api/v2" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Main Provider API Key</label>
+            <input type="text" id="providerApiKey" placeholder="Enter Provider API Key" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Payment Settings Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800/80">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">KPay Number</label>
+            <input type="text" id="kpayNumber" placeholder="09xxxxxxxxx" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">KPay Account Name</label>
+            <input type="text" id="kpayName" placeholder="Account Name" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">WavePay Number</label>
+            <input type="text" id="waveNumber" placeholder="09xxxxxxxxx" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">WavePay Account Name</label>
+            <input type="text" id="waveName" placeholder="Account Name" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full md:w-auto px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium text-sm transition">Save Settings</button>
+      </form>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+  </html>
