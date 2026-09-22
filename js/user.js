@@ -6,6 +6,15 @@ let currentBalance = 0;
 let servicesList = [];
 let selectedService = null;
 
+// ပလက်ဖောင်းအလိုက် Logo Emoji များ သတ်မှတ်ခြင်း
+const platformIcons = {
+  'tiktok': '🎵',
+  'telegram': '✈️',
+  'youtube': '▶️',
+  'instagram': '📸',
+  'facebook': '📘'
+};
+
 async function initUserDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -31,65 +40,84 @@ async function initUserDashboard() {
 }
 
 // ==========================================
-// Side Drawer Sidebar လုပ်ဆောင်ချက်များ
+// DRAWER & MODAL LOGICS
 // ==========================================
 window.openDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
-  
   backdrop.classList.remove('hidden');
   setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-  
   drawer.classList.remove('translate-x-full');
 };
 
 window.closeDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
-  
   drawer.classList.add('translate-x-full');
   backdrop.classList.add('opacity-0');
   setTimeout(() => backdrop.classList.add('hidden'), 300);
 };
 
-// ==========================================
+// Logout Modal System
+window.openLogoutModal = function() {
+  closeDrawer();
+  document.getElementById('logoutModal').classList.remove('hidden');
+};
+window.closeLogoutModal = function() {
+  document.getElementById('logoutModal').classList.add('hidden');
+};
+window.confirmLogout = async function() {
+  await supabase.auth.signOut();
+  window.location.href = "login.html";
+};
 
+// ==========================================
+// CATEGORY & SERVICE LOGICS
+// ==========================================
 async function loadServicesFromDB() {
-  const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+  const { data, error } = await supabase.from('services').select('*').order('numeric_id', { ascending: true });
   if (!error && data) {
     servicesList = data;
   }
-  renderServiceOptions('All');
+  populateCategories();
 }
 
-window.filterCategory = function(platform) {
-  const buttons = document.querySelectorAll('.category-btn');
-  buttons.forEach(btn => {
-    btn.classList.remove('bg-indigo-600/30', 'border-indigo-500');
-    btn.classList.add('border-slate-800');
+// Category Dropdown အား Service များမှခွဲထုတ်၍ Emoji Logo ဖြင့်ထည့်သွင်းခြင်း
+function populateCategories() {
+  const catSelect = document.getElementById('categorySelect');
+  if(!catSelect) return;
+  catSelect.innerHTML = '<option value="">-- Category ရွေးချယ်ပါ --</option>';
+
+  let categoryMap = {}; // Group by category to find its platform
+  servicesList.forEach(s => {
+    categoryMap[s.category] = s.platform;
   });
-  event.currentTarget.classList.add('bg-indigo-600/30', 'border-indigo-500');
-  event.currentTarget.classList.remove('border-slate-800');
-  renderServiceOptions(platform);
-};
 
-function renderServiceOptions(category) {
-  const select = document.getElementById('serviceSelect');
-  if(!select) return;
-  select.innerHTML = '<option value="">-- Service တစ်ခုရွေးပါ --</option>';
+  for (const [catName, platformName] of Object.entries(categoryMap)) {
+    const icon = platformIcons[platformName.toLowerCase()] || '📌';
+    catSelect.innerHTML += `<option value="${catName}">${icon} ${catName}</option>`;
+  }
+}
 
-  const filtered = category === 'All' 
-    ? servicesList 
-    : servicesList.filter(s => s.platform.toLowerCase() === category.toLowerCase());
-
-  filtered.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = `🔵 ID: ${s.provider_service_id || s.id.slice(0,3)} | ${s.name} - (${s.rate} Ks)`;
-    select.appendChild(opt);
-  });
+// Category ရွေးလိုက်ပါက သက်ဆိုင်ရာ Service များသာ အောက်ဖောင်တွင်ပေါ်မည်
+document.getElementById('categorySelect')?.addEventListener('change', (e) => {
+  const selectedCat = e.target.value;
+  const servSelect = document.getElementById('serviceSelect');
+  
+  servSelect.innerHTML = '<option value="">-- Service တစ်ခုရွေးပါ --</option>';
+  
+  if (selectedCat) {
+    servSelect.disabled = false;
+    const filtered = servicesList.filter(s => s.category === selectedCat);
+    filtered.forEach(s => {
+      servSelect.innerHTML += `<option value="${s.id}">ID: ${s.numeric_id || '-'} - ${s.name} (${s.rate} Ks)</option>`;
+    });
+  } else {
+    servSelect.disabled = true;
+  }
+  
   resetDetails();
-}
+});
 
 document.getElementById('serviceSelect')?.addEventListener('change', (e) => {
   const serviceId = e.target.value;
@@ -97,6 +125,10 @@ document.getElementById('serviceSelect')?.addEventListener('change', (e) => {
 
   if (selectedService) {
     document.getElementById('serviceDetailsBox').classList.remove('hidden');
+    // Box အတွင်း Service ID နှင့် Name အား ထင်ရှားစွာပြသခြင်း
+    document.getElementById('displayNumId').innerText = selectedService.numeric_id || 'N/A';
+    document.getElementById('displayTitle').innerText = selectedService.name;
+    
     document.getElementById('detailNote').innerText = selectedService.note || "မှတ်ချက်မရှိပါ။";
     document.getElementById('detailTime').innerText = selectedService.time || "တွက်ချက်နေဆဲ";
     document.getElementById('detailMin').innerText = selectedService.min_qty.toLocaleString();
@@ -126,9 +158,12 @@ function resetDetails() {
   const charge = document.getElementById('totalCharge');
   if(charge) charge.innerText = "0 Ks";
   const time = document.getElementById('detailTime');
-  if(time) time.innerText = "ရွေးချယ်ပါ";
+  if(time) time.innerText = "-";
 }
 
+// ==========================================
+// ORDER SUBMIT & SUCCESS MODAL
+// ==========================================
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!selectedService) return alert("Service ရွေးပေးပါ။");
@@ -149,9 +184,10 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.innerText = "Processing...";
 
+  // Insert Order
   const { data: newOrder, error: orderError } = await supabase.from('orders').insert([{
     user_id: currentUser.id,
-    service_id: selectedService.provider_service_id,
+    service_id: selectedService.provider_service_id || selectedService.id,
     service_name: selectedService.name,
     target_link: link,
     quantity: qty,
@@ -166,11 +202,12 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     return;
   }
 
+  // Update Balance
   const newBalance = currentBalance - total;
   await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
 
-  // Show Success Modal
-  document.getElementById('modalOrderId').innerText = `#${newOrder.id.slice(0, 4).toUpperCase()}`;
+  // Show Success Modal (Numeric Order ID ဖြင့် ထင်ရှားစွာပြသမည်)
+  document.getElementById('modalOrderId').innerText = `#${newOrder.numeric_id || newOrder.id.slice(0, 4)}`;
   document.getElementById('modalLink').innerText = link;
   document.getElementById('modalQty').innerText = qty.toLocaleString();
   document.getElementById('modalCharge').innerText = `${total.toLocaleString()} Ks`;
@@ -190,10 +227,4 @@ window.closeSuccessModal = function() {
   window.location.reload();
 };
 
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  window.location.href = "login.html";
-});
-
 initUserDashboard();
-    
