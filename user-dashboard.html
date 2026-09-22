@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - SMM Boost</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 md:pb-10">
+
+  <!-- Top Navbar -->
+  <header class="glass sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-slate-800">
+    <div>
+      <h1 class="text-lg font-bold text-indigo-400 tracking-wider">SMM BOOST</h1>
+      <p class="text-xs text-slate-400" id="userEmailDisplay">Loading...</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Balance Card -->
+      <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30 flex items-center gap-2">
+        <span class="text-xs text-slate-400">Balance:</span>
+        <span class="text-sm font-bold text-emerald-400" id="userBalanceDisplay">0 MMK</span>
+      </div>
+      <a href="topup.html" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold transition">+ Topup</a>
+      <button id="logoutBtn" class="text-xs text-rose-400 hover:underline">Logout</button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- Platform Categories Filter (Horizontal Scroll) -->
+    <div>
+      <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Platforms ရွေးချယ်ရန်</h2>
+      <div class="flex items-center gap-3 overflow-x-auto pb-2 hide-scrollbar" id="platformFilterContainer">
+        <!-- All Button -->
+        <button onclick="filterCategory('All')" class="category-btn active flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-2xl glass border border-indigo-500 bg-indigo-600/30 text-xs font-medium transition">
+          <span class="w-6 h-6 flex items-center justify-center font-bold text-[10px] bg-slate-800 rounded-full">ALL</span>
+          All Services
+        </button>
+
+        <!-- TikTok -->
+        <button onclick="filterCategory('TikTok')" class="category-btn flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl glass border border-slate-800 hover:border-slate-700 text-xs font-medium transition">
+          <img src="https://i.ibb.co/3sS7n6V/tiktok.jpg" class="w-6 h-6 rounded-full object-cover" alt="TikTok">
+          TikTok
+        </button>
+
+        <!-- Telegram -->
+        <button onclick="filterCategory('Telegram')" class="category-btn flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl glass border border-slate-800 hover:border-slate-700 text-xs font-medium transition">
+          <img src="https://i.ibb.co/FmP0zVp/telegram.jpg" class="w-6 h-6 rounded-full object-cover" alt="Telegram">
+          Telegram
+        </button>
+
+        <!-- YouTube -->
+        <button onclick="filterCategory('YouTube')" class="category-btn flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl glass border border-slate-800 hover:border-slate-700 text-xs font-medium transition">
+          <img src="https://i.ibb.co/Zxb0vV8/youtube.jpg" class="w-6 h-6 rounded-full object-cover" alt="YouTube">
+          YouTube
+        </button>
+
+        <!-- Instagram -->
+        <button onclick="filterCategory('Instagram')" class="category-btn flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl glass border border-slate-800 hover:border-slate-700 text-xs font-medium transition">
+          <img src="https://i.ibb.co/2NtzJqR/instagram.jpg" class="w-6 h-6 rounded-full object-cover" alt="Instagram">
+          Instagram
+        </button>
+
+        <!-- Facebook -->
+        <button onclick="filterCategory('Facebook')" class="category-btn flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl glass border border-slate-800 hover:border-slate-700 text-xs font-medium transition">
+          <img src="https://i.ibb.co/8YjG44N/facebook.jpg" class="w-6 h-6 rounded-full object-cover" alt="Facebook">
+          Facebook
+        </button>
+      </div>
+    </div>
+
+    <!-- New Order Card -->
+    <div class="glass p-5 md:p-7 rounded-3xl space-y-5">
+      <h2 class="text-base font-semibold text-indigo-300">New Order တင်ရန်</h2>
+
+      <form id="orderForm" class="space-y-4">
+        <!-- Select Service -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Service ရွေးချယ်ပါ</label>
+          <select id="serviceSelect" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs md:text-sm focus:outline-none focus:border-indigo-500">
+            <option value="">-- Service တစ်ခုရွေးပါ --</option>
+          </select>
+        </div>
+
+        <!-- Service Info Details (Time, Price, Min/Max) -->
+        <div id="serviceDetailsBox" class="hidden p-4 rounded-xl bg-slate-900/50 border border-slate-800 space-y-2 text-xs">
+          <div class="flex justify-between items-center text-slate-300">
+            <span>ကြာချိန် (Average Time): <b id="detailTime" class="text-amber-400 font-medium">-</b></span>
+            <span>ဈေးနှုန်း: <b id="detailRate" class="text-indigo-400 font-semibold">-</b> MMK / 1000</span>
+          </div>
+          <div class="text-slate-400">
+            အနည်းဆုံး: <span id="detailMin" class="text-slate-200 font-medium">-</span> | အများဆုံး: <span id="detailMax" class="text-slate-200 font-medium">-</span>
+          </div>
+        </div>
+
+        <!-- Target Link -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Link ထည့်ရန် (Profile / Post Link)</label>
+          <input type="url" id="orderLink" required placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Quantity -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">အရေအတွက် (Quantity)</label>
+          <input type="number" id="orderQuantity" required placeholder="1000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Note Section -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Note (သတိပြုရန် သို့မဟုတ် ထပ်ဆောင်းအချက်အလက်)</label>
+          <textarea id="orderNote" rows="2" placeholder="ဥပမာ - Video view ဖြစ်ပါသည်..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <!-- Total Charge Display -->
+        <div class="flex justify-between items-center pt-2">
+          <span class="text-xs text-slate-400">ကျသင့်ငွေ စုစုပေါင်း:</span>
+          <span class="text-base font-bold text-emerald-400" id="totalCharge">0 MMK</span>
+        </div>
+
+        <button type="submit" id="submitOrderBtn" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm transition shadow-lg shadow-indigo-600/20">
+          Order တင်မည်
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <script type="module" src="js/user.js"></script>
+</body>
+            </html>
 
