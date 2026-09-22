@@ -201,3 +201,28 @@ alert(providerRes.success
   : "Order တင်ပြီးပါပြီ။ Provider သို့ ပို့ဆောင်ရန် Admin ဘက်မှ စစ်ဆေးပေးပါမည်။");
 
 window.location.reload();
+// Menu (အဆက်လေး) အဖွင့်/အပိတ် လုပ်ဆောင်ချက်
+document.getElementById('menuBtn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('dropdownMenu').classList.toggle('hidden');
+});
+
+// Menu ပြင်ပသို့နှိပ်ပါက Menu အား ပြန်ပိတ်ပေးခြင်း
+window.addEventListener('click', (e) => {
+  const menu = document.getElementById('dropdownMenu');
+  const btn = document.getElementById('menuBtn');
+  if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
+// Admin Button ဖော်ပြရန် (initUserDashboard function ပြီးသွားပါက အောက်ပါအတိုင်း Admin စစ်ဆေးပါ)
+setTimeout(() => {
+  if (currentUser && currentUser.email === "chanyatewai2@gmail.com") {
+    const adminLink = document.getElementById('adminPanelLink');
+    if (adminLink) {
+      adminLink.classList.remove('hidden');
+      adminLink.classList.add('block');
+    }
+  }
+}, 1000); // 1 Second စောင့်ပြီးမှ စစ်ဆေးပါမည်
