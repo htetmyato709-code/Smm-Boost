@@ -165,3 +165,39 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 
 initUserDashboard();
                   
+// js/user.js ရဲ့ Submit Event အပိုင်းတွင် ထည့်သွင်းရန်
+import { sendAutoOrderToProvider } from './api.js';
+
+// ... (ယခင် ရေးထားသော Balance စစ်ဆေးသည့်နေရာပြီးနောက်)
+
+// ၁။ Main Provider ဆီသို့ Auto Order တိုက်ရိုက် ပို့ခြင်း
+const providerRes = await sendAutoOrderToProvider(selectedService.id, link, qty);
+
+let providerOrderId = null;
+let orderStatus = 'pending';
+
+if (providerRes.success) {
+  providerOrderId = providerRes.orderId;
+  orderStatus = 'processing'; // Provider ပေါ်ရောက်သွားပါက Processing ပြောင်းပါမည်
+}
+
+// ၂။ Database ထဲ Order မှတ်တမ်းသိမ်းခြင်း
+await supabase.from('orders').insert([{
+  user_id: currentUser.id,
+  service_id: selectedService.id,
+  service_name: selectedService.name,
+  target_link: link,
+  quantity: qty,
+  charge: total,
+  provider_order_id: providerOrderId,
+  status: orderStatus
+}]);
+
+// ၃။ User Balance လျှော့ချခြင်း
+await supabase.from('profiles').update({ balance: currentBalance - total }).eq('id', currentUser.id);
+
+alert(providerRes.success 
+  ? `Order အောင်မြင်စွာ တင်ပြီးပါပြီ။ Provider Order ID: ${providerOrderId}` 
+  : "Order တင်ပြီးပါပြီ။ Provider သို့ ပို့ဆောင်ရန် Admin ဘက်မှ စစ်ဆေးပေးပါမည်။");
+
+window.location.reload();
