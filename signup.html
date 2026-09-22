@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - SMM Boost</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="glass w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6">
+    <div class="text-center space-y-2">
+      <h1 class="text-2xl font-bold tracking-wide text-indigo-400">Create Account</h1>
+      <p class="text-xs text-slate-400">SMM Boost ဝန်ဆောင်မှုများကို စတင်အသုံးပြုရန် အကောင့်ဖွင့်ပါ</p>
+    </div>
+
+    <form id="signupForm" class="space-y-4">
+      <div>
+        <label class="block text-xs text-slate-400 mb-1.5">Email Address</label>
+        <input type="email" id="signupEmail" required placeholder="example@email.com" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1.5">Password</label>
+        <input type="password" id="signupPassword" required minlength="6" placeholder="••••••••" class="w-full bg-slate-900/60 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <button type="submit" id="signupBtn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium text-sm transition">Sign Up</button>
+    </form>
+
+    <div class="text-center text-xs text-slate-400 pt-2 border-t border-slate-800">
+      အကောင့်ရှိပြီးသားလား? <a href="login.html" class="text-indigo-400 hover:underline">Log In ဝင်ပါ</a>
+    </div>
+  </div>
+
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
 
