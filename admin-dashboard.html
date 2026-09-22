@@ -3,115 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - SMM Boost</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Admin Dashboard - StarGrow</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    body { background-color: #f4f7fc; }
+    .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row">
+<body class="text-slate-800 min-h-screen pb-20">
 
-  <!-- Sidebar -->
-  <aside class="w-full md:w-64 glass p-6 flex flex-col justify-between">
-    <div>
-      <h2 class="text-2xl font-bold text-indigo-400 mb-8 tracking-wider">SMM ADMIN</h2>
-      <nav class="space-y-4">
-        <a href="#settings" class="block py-2.5 px-4 rounded-xl bg-indigo-600/30 text-indigo-300 font-medium border border-indigo-500/30">Settings & API</a>
-        <a href="#deposits" class="block py-2.5 px-4 rounded-xl hover:bg-slate-800/50 transition">Deposits / Topup</a>
-        <a href="#orders" class="block py-2.5 px-4 rounded-xl hover:bg-slate-800/50 transition">Orders</a>
-      </nav>
+  <!-- Top Navigation -->
+  <header class="bg-white px-4 py-3 flex justify-between items-center shadow-sm sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <h1 class="text-xl font-black text-slate-900 tracking-tight">StarGrow</h1>
+      <span class="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-md">SUPER ADMIN</span>
     </div>
-    <button id="logoutBtn" class="mt-8 py-2 px-4 rounded-xl bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition text-sm">Logout</button>
-  </aside>
+    <div class="flex gap-2">
+      <a href="user-dashboard.html" class="bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1">← User Dashboard</a>
+      <button id="logoutBtn" class="bg-slate-100 text-rose-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center">➔</button>
+    </div>
+  </header>
 
-  <!-- Main Content Area -->
-  <main class="flex-1 p-6 md:p-10 space-y-8 overflow-y-auto">
+  <main class="max-w-2xl mx-auto p-4 space-y-6 mt-2">
     
-    <!-- Top Bar -->
-    <div class="flex justify-between items-center glass p-4 rounded-2xl">
-      <div>
-        <h1 class="text-xl font-semibold">Admin Panel</h1>
-        <p class="text-xs text-slate-400" id="adminEmailDisplay">Checking permissions...</p>
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white p-4 rounded-3xl card-shadow border border-slate-100">
+        <div class="text-xs font-semibold text-slate-400 flex justify-between">စုစုပေါင်း Orders <span class="text-blue-500">📊</span></div>
+        <div class="text-2xl font-black mt-1" id="statTotalOrders">0</div>
       </div>
-      <span class="px-3 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Admin Authorized</span>
+      <div class="bg-white p-4 rounded-3xl card-shadow border border-slate-100">
+        <div class="text-xs font-semibold text-slate-400 flex justify-between">Pending / Process <span class="text-amber-500">⏳</span></div>
+        <div class="text-2xl font-black text-amber-500 mt-1" id="statPending">0</div>
+      </div>
+      <div class="bg-white p-4 rounded-3xl card-shadow border border-slate-100">
+        <div class="text-xs font-semibold text-slate-400 flex justify-between">Completed <span class="text-emerald-500">✔️</span></div>
+        <div class="text-2xl font-black text-emerald-500 mt-1" id="statCompleted">0</div>
+      </div>
+      <div class="bg-white p-4 rounded-3xl card-shadow border border-slate-100">
+        <div class="text-xs font-semibold text-slate-400 flex justify-between">ရောင်းရငွေ (Revenue) <span class="text-indigo-500">💵</span></div>
+        <div class="text-xl font-black text-indigo-600 mt-1" id="statRevenue">K 0</div>
+      </div>
     </div>
 
-    <!-- Provider & Payment Settings -->
-    <section class="glass p-6 md:p-8 rounded-2xl space-y-6">
-      <h2 class="text-lg font-semibold text-indigo-300 border-b border-slate-800 pb-3">Main Provider & Payment Settings</h2>
-      
-      <form id="settingsForm" class="space-y-6">
-        <!-- Main Provider Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Tab Buttons -->
+    <div class="flex gap-2 bg-white p-1.5 rounded-2xl card-shadow">
+      <button onclick="switchTab('orders')" id="tabOrders" class="flex-1 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/30 transition">
+        ☰ Orders စီမံရန်
+      </button>
+      <button onclick="switchTab('services')" id="tabServices" class="flex-1 py-2 rounded-xl text-slate-500 text-sm font-bold hover:bg-slate-50 transition">
+        ➕ Services ထည့်/ပြင်
+      </button>
+    </div>
+
+    <!-- Tab 1: Orders Management -->
+    <section id="sectionOrders" class="space-y-4 block">
+      <div class="flex gap-2 overflow-x-auto pb-2 hide-scrollbar text-xs font-semibold">
+        <button class="px-4 py-1.5 bg-blue-600 text-white rounded-full flex-shrink-0">အားလုံး</button>
+        <button class="px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full flex-shrink-0">Pending</button>
+        <button class="px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full flex-shrink-0">Processing</button>
+      </div>
+      <div id="ordersContainer" class="space-y-4">
+        <!-- Order Cards နေရာ (JS ဖြင့် ဖြည့်သွင်းမည်) -->
+      </div>
+    </section>
+
+    <!-- Tab 2: Add/Edit Services Form -->
+    <section id="sectionServices" class="hidden bg-white p-5 rounded-3xl card-shadow border border-slate-100 space-y-4">
+      <h2 class="font-bold text-slate-800 text-sm border-b pb-2">Service အသစ်ထည့်ရန်</h2>
+      <form id="addServiceForm" class="space-y-4">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Platform</label>
+          <select id="s_platform" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+            <option value="TikTok">TikTok</option>
+            <option value="Telegram">Telegram</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Facebook">Facebook</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Category (အမျိုးအစားအမည်)</label>
+          <input type="text" id="s_category" required placeholder="ဥပမာ - TikTok Followers [Real]" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Service Name (ဝန်ဆောင်မှုအမည်)</label>
+          <input type="text" id="s_name" required placeholder="ဥပမာ - TikTok Followers | MQ 10K | Fast" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+
+        <div class="bg-blue-50/50 p-3 rounded-2xl border border-blue-100 space-y-3">
           <div>
-            <label class="block text-sm text-slate-300 mb-2">Main Provider API URL</label>
-            <input type="url" id="providerUrl" placeholder="https://provider.com/api/v2" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-blue-900 mb-1 flex items-center gap-1">🗄 API Provider ရွေးချယ်ပါ</label>
+            <select id="s_api_provider" required class="w-full bg-white border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+              <option value="Peakerr">Peakerr (Main Provider)</option>
+              <option value="Manual">Manual (လက်ဖြင့်သွင်းမည်)</option>
+            </select>
           </div>
           <div>
-            <label class="block text-sm text-slate-300 mb-2">Main Provider API Key</label>
-            <input type="text" id="providerApiKey" placeholder="Enter Provider API Key" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-blue-900 mb-1">Provider Service ID</label>
+            <input type="text" id="s_provider_id" required placeholder="ဥပမာ - 1054" class="w-full bg-white border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
+            <p class="text-[10px] text-blue-600 mt-1">* ID တူနေပါကလည်း ရွေးထားသော Provider ဆီသာ အလိုအလျောက် သွားပါမည်</p>
           </div>
         </div>
 
-        <!-- Payment Settings Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800/80">
+        <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm text-slate-300 mb-2">KPay Number</label>
-            <input type="text" id="kpayNumber" placeholder="09xxxxxxxxx" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Rate (1,000 လျှင် Ks)</label>
+            <input type="number" id="s_rate" required placeholder="ဥပမာ - 150" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-sm text-slate-300 mb-2">KPay Account Name</label>
-            <input type="text" id="kpayName" placeholder="Account Name" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">⏱ Order ကြာချိန်</label>
+            <input type="text" id="s_time" placeholder="ဥပမာ - 0-15 Min သို့မဟုတ် 1 Hr" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-sm text-slate-300 mb-2">WavePay Number</label>
-            <input type="text" id="waveNumber" placeholder="09xxxxxxxxx" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Min Qty</label>
+            <input type="number" id="s_min" required placeholder="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-sm text-slate-300 mb-2">WavePay Account Name</label>
-            <input type="text" id="waveName" placeholder="Account Name" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Max Qty</label>
+            <input type="number" id="s_max" required placeholder="100000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
           </div>
         </div>
 
-        <button type="submit" class="w-full md:w-auto px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium text-sm transition">Save Settings</button>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Service Note (မှတ်ရန် ညွှန်ကြားချက်)</label>
+          <textarea id="s_note" rows="2" placeholder="Instant start > Non drop > Lifetime guarantee&#10;စသည်ဖြင့် ရေးရန်" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/30 transition">
+          သိမ်းဆည်းမည် (Save Service)
+        </button>
       </form>
     </section>
-<!-- admin-dashboard.html ရဲ့ main tag အတွင်း ထည့်ရန် -->
-<section id="deposits" class="glass p-6 md:p-8 rounded-2xl space-y-4 mt-8">
-  <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-    <h2 class="text-lg font-semibold text-indigo-300">Pending Deposit Requests</h2>
-    <button onclick="loadPendingDeposits()" class="text-xs text-indigo-400 hover:underline">Refresh</button>
-  </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs md:text-sm">
-      <thead class="text-slate-400 border-b border-slate-800">
-        <tr>
-          <th class="py-3 px-2">User Email</th>
-          <th class="py-3 px-2">Method</th>
-          <th class="py-3 px-2">Amount</th>
-          <th class="py-3 px-2">Trx ID</th>
-          <th class="py-3 px-2">Proof</th>
-          <th class="py-3 px-2 text-right">Action (1-Click)</th>
-        </tr>
-      </thead>
-      <tbody id="depositTableBody" class="divide-y divide-slate-800/60">
-        <!-- JS ဖြင့် Data များ ဝင်လာပါမည် -->
-      </tbody>
-    </table>
-  </div>
-</section>
-    
   </main>
 
   <script type="module" src="js/admin.js"></script>
+  <script>
+    // Tab ပြောင်းရန် လုပ်ဆောင်ချက်
+    function switchTab(tab) {
+      document.getElementById('sectionOrders').classList.add('hidden');
+      document.getElementById('sectionServices').classList.add('hidden');
+      
+      document.getElementById('tabOrders').className = "flex-1 py-2 rounded-xl text-slate-500 text-sm font-bold hover:bg-slate-50 transition";
+      document.getElementById('tabServices').className = "flex-1 py-2 rounded-xl text-slate-500 text-sm font-bold hover:bg-slate-50 transition";
+
+      if(tab === 'orders') {
+        document.getElementById('sectionOrders').classList.remove('hidden');
+        document.getElementById('tabOrders').className = "flex-1 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/30 transition";
+      } else {
+        document.getElementById('sectionServices').classList.remove('hidden');
+        document.getElementById('tabServices').className = "flex-1 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-md shadow-blue-500/30 transition";
+      }
+    }
+  </script>
 </body>
-  </html>
+              </html>
+            
