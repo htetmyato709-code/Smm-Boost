@@ -71,3 +71,73 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // Run Init
 initAdminAuth();
           
+// js/admin.js ထဲသို့ ပေါင်းထည့်ရန်
+
+// Pending ဖြစ်နေသော Deposits များကို ဆွဲထုတ်ပြသခြင်း
+export async function loadPendingDeposits() {
+  const tbody = document.getElementById('depositTableBody');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-500">Loading requests...</td></tr>';
+
+  const { data: deposits, error } = await supabase
+    .from('deposits')
+    .select('*')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  if (error || !deposits.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-500">မစစ်ဆေးရသေးသော Deposit မရှိပါ။</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  deposits.forEach((dep) => {
+    const tr = document.createElement('tr');
+    tr.className = "hover:bg-slate-900/40";
+    tr.innerHTML = `
+      <td class="py-3 px-2 font-medium text-slate-200">${dep.user_email}</td>
+      <td class="py-3 px-2 text-amber-400">${dep.payment_method}</td>
+      <td class="py-3 px-2 font-bold text-emerald-400">${Number(dep.amount).toLocaleString()} MMK</td>
+      <td class="py-3 px-2 text-slate-300 font-mono text-xs">${dep.transaction_id}</td>
+      <td class="py-3 px-2">
+        ${dep.screenshot_url ? `<a href="${dep.screenshot_url}" target="_blank" class="text-indigo-400 underline text-xs">View Slip</a>` : '-'}
+      </td>
+      <td class="py-3 px-2 text-right space-x-2">
+        <button onclick="approveDeposit('${dep.id}', '${dep.user_id}', ${dep.amount})" class="px-3 py-1 bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg hover:bg-emerald-600/50 text-xs transition">Approve</button>
+        <button onclick="rejectDeposit('${dep.id}')" class="px-3 py-1 bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg hover:bg-rose-600/50 text-xs transition">Reject</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// 1-Click Approve: Status ပြောင်းပြီး User Account ထဲ Balance တိုက်ရိုက်ပေါင်းထည့်ခြင်း
+window.approveDeposit = async function(depositId, userId, amount) {
+  if (!confirm(`${amount.toLocaleString()} MMK အား အကောင့်ထဲ ဖြည့်သွင်းပေးရန် သေချာပါသလား?`)) return;
+
+  // ၁။ User ရဲ့ လက်ရှိ balance ကို ယူခြင်း
+  const { data: userProfile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
+  const currentBal = Number(userProfile?.balance || 0);
+
+  // ၂။ Balance အသစ် ထည့်သွင်းခြင်း
+  await supabase.from('profiles').update({ balance: currentBal + Number(amount) }).eq('id', userId);
+
+  // ၃။ Deposit status ကို approved ပြောင်းခြင်း
+  await supabase.from('deposits').update({ status: 'approved' }).eq('id', depositId);
+
+  alert("Deposit အား အတည်ပြုပြီး ငွေပေါင်းထည့်ပေးလိုက်ပါပြီ။");
+  loadPendingDeposits();
+};
+
+// 1-Click Reject: Status အား ပယ်ဖျက်ခြင်း
+window.rejectDeposit = async function(depositId) {
+  if (!confirm("ဤ ငွေသွင်းတောင်းဆိုမှုကို ပယ်ဖျက် (Reject) ရန် သေချာပါသလား?")) return;
+
+  await supabase.from('deposits').update({ status: 'rejected' }).eq('id', depositId);
+  alert("Deposit ကို ပယ်ဖျက်ပြီးပါပြီ။");
+  loadPendingDeposits();
+};
+
+// စတင် run ချိန်တွင် load လုပ်ရန်
+window.loadPendingDeposits = loadPendingDeposits;
+loadPendingDeposits();
+  
