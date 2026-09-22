@@ -32,13 +32,8 @@ async function loadUsers() {
   if (!tbody) return;
 
   const { data: users, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  if (error || !users) return;
 
-  if (error || !users) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-slate-500">Error loading users</td></tr>';
-    return;
-  }
-
-  // Update Stats UI
   if(document.getElementById('statUsers')) {
     document.getElementById('statUsers').innerText = users.length;
   }
@@ -158,7 +153,6 @@ window.loadPendingDeposits = async function() {
 window.approveDeposit = async function(depositId, userId, amount) {
   if (!confirm(`ဒီအကောင့်ထဲသို့ ${amount} Ks ဖြည့်သွင်းပေးရန် သေချာပါသလား?`)) return;
 
-  // ၁။ User ရဲ့ Profile (လက်ကျန်ငွေ) ကို အရင်ရှာပါမည်
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('balance')
@@ -173,7 +167,6 @@ window.approveDeposit = async function(depositId, userId, amount) {
   const currentBal = Number(profile?.balance || 0);
   const newBal = currentBal + Number(amount);
 
-  // ၂။ Balance ကို Update လုပ်ပါမည်
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ balance: newBal })
@@ -184,9 +177,7 @@ window.approveDeposit = async function(depositId, userId, amount) {
     return;
   }
 
-  // ၃။ Deposit ကို Approved ပြောင်းပါမည်
   await supabase.from('deposits').update({ status: 'approved' }).eq('id', depositId);
-
   alert("ငွေဖြည့်သွင်းခြင်း အောင်မြင်ပါသည်။");
   loadPendingDeposits();
   loadUsers();
@@ -236,17 +227,26 @@ document.getElementById('settingsForm')?.addEventListener('submit', async (e) =>
 document.getElementById('addServiceForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   
+  const btn = document.getElementById('saveServiceBtn');
+  if(btn) {
+    btn.disabled = true;
+    btn.innerText = "Saving...";
+  }
+
+  const providerInput = document.getElementById('s_provider_id');
+  const noteInput = document.getElementById('s_note');
+  
   const serviceData = {
     platform: document.getElementById('s_platform').value,
     category: document.getElementById('s_category').value,
     name: document.getElementById('s_name').value,
     api_provider: document.getElementById('s_api_provider').value,
-    provider_service_id: document.getElementById('s_provider_id').value,
+    provider_service_id: providerInput ? providerInput.value : "",
     rate: parseFloat(document.getElementById('s_rate').value),
     time: document.getElementById('s_time').value,
     min_qty: parseInt(document.getElementById('s_min').value),
     max_qty: parseInt(document.getElementById('s_max').value),
-    note: document.getElementById('s_note').value
+    note: noteInput ? noteInput.value : ""
   };
   
   const { error } = await supabase.from('services').insert([serviceData]);
@@ -256,6 +256,11 @@ document.getElementById('addServiceForm')?.addEventListener('submit', async (e) 
   } else {
     alert("Service အသစ် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။");
     e.target.reset();
+  }
+
+  if(btn) {
+    btn.disabled = false;
+    btn.innerText = "Save Service";
   }
 });
 
