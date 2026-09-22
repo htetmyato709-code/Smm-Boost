@@ -7,9 +7,9 @@ let servicesList = [];
 let selectedService = null;
 let activePlatformFilter = "All";
 
-// Official Logos Matching Provided Images
+// High-Definition Official Logos (TikTok SVG Data URL ဖြင့် အမှောင်ထဲတွင် ပေါ်လွင်ထင်ရှားစွာ ရေးဆွဲထားပါသည်)
 const brandLogos = {
-  'tiktok': 'https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg',
+  'tiktok': "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%2325F4EE' d='M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z'/%3E%3Cpath fill='%23FE2C55' d='M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z' transform='translate(-6 -6)'/%3E%3Cpath fill='%23ffffff' d='M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z' transform='translate(-3 -3)'/%3E%3C/svg%3E",
   'telegram': 'https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg',
   'facebook': 'https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png',
   'instagram': 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg',
@@ -39,10 +39,16 @@ async function initUserDashboard() {
     document.getElementById('userBalanceDisplay').innerText = `${currentBalance.toLocaleString()} Ks`;
   }
 
+  // Set Top Tab Logo Images
+  for (const [pName, url] of Object.entries(brandLogos)) {
+    const el = document.getElementById(`tabLogo-${pName.charAt(0).toUpperCase() + pName.slice(1)}`);
+    if (el) el.src = url;
+  }
+
   await loadServicesFromDB();
 }
 
-// Side Drawer Controls
+// Drawer Controls
 window.openDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
@@ -72,7 +78,7 @@ window.confirmLogout = async function() {
   window.location.href = "login.html";
 };
 
-// Top Platform Filter Buttons
+// Top Platform Filters
 window.selectPlatformFilter = function(platform) {
   activePlatformFilter = platform;
   const buttons = document.querySelectorAll('.platform-tab');
@@ -87,7 +93,6 @@ window.selectPlatformFilter = function(platform) {
 
   populateCategories();
   
-  // Reset Service Form selection
   document.getElementById('selectedCatText').innerHTML = 'Category ရွေးချယ်ပါ';
   const servBtn = document.getElementById('servDropdownBtn');
   servBtn.disabled = true;
@@ -95,7 +100,7 @@ window.selectPlatformFilter = function(platform) {
   resetDetails();
 };
 
-// Dropdown Toggles
+// Dropdowns Toggle
 window.toggleCatDropdown = function(e) {
   e.stopPropagation();
   document.getElementById('servDropdownList').classList.add('hidden');
@@ -122,7 +127,7 @@ async function loadServicesFromDB() {
   populateCategories();
 }
 
-// Populate Categories based on Platform Filter
+// Populate Categories
 function populateCategories() {
   const list = document.getElementById('catDropdownList');
   if (!list) return;
@@ -149,7 +154,9 @@ function populateCategories() {
     const item = document.createElement('div');
     item.className = "flex items-center gap-3 px-4 py-3 hover:bg-slate-800 cursor-pointer transition text-sm text-slate-200";
     item.innerHTML = `
-      <img src="${logoUrl}" class="w-6 h-6 rounded-md object-contain bg-black/40 p-0.5 border border-slate-700" alt="${platformName}">
+      <div class="w-6 h-6 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center p-1 flex-shrink-0">
+        <img src="${logoUrl}" class="w-full h-full object-contain" alt="${platformName}">
+      </div>
       <span class="font-medium">${catName}</span>
     `;
     item.onclick = () => selectCategory(catName, platformName, logoUrl);
@@ -160,7 +167,9 @@ function populateCategories() {
 // Select Category
 function selectCategory(catName, platformName, logoUrl) {
   document.getElementById('selectedCatText').innerHTML = `
-    <img src="${logoUrl}" class="w-6 h-6 rounded-md object-contain bg-black/40 p-0.5 border border-slate-700" alt="${platformName}">
+    <div class="w-6 h-6 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center p-1 flex-shrink-0">
+      <img src="${logoUrl}" class="w-full h-full object-contain" alt="${platformName}">
+    </div>
     <span class="text-white font-medium">${catName}</span>
   `;
   document.getElementById('catDropdownList').classList.add('hidden');
@@ -197,7 +206,7 @@ function selectCategory(catName, platformName, logoUrl) {
   resetDetails();
 }
 
-// Select Service
+// Select Service (Detect Comments Requirement)
 function selectServiceItem(service) {
   selectedService = service;
   
@@ -215,8 +224,31 @@ function selectServiceItem(service) {
   document.getElementById('detailMin').innerText = Number(service.min_qty).toLocaleString();
   document.getElementById('detailMax').innerText = Number(service.max_qty).toLocaleString();
   
+  // Custom Comments စစ်ဆေးခြင်း (အမည် သို့မဟုတ် အမျိုးအစားတွင် Comment ပါဝင်ပါက)
+  const isComment = service.name.toLowerCase().includes('comment') || service.category.toLowerCase().includes('comment');
+  const commentsContainer = document.getElementById('commentsContainer');
+  const qtyInput = document.getElementById('orderQuantity');
+  
+  if (isComment) {
+    commentsContainer.classList.remove('hidden');
+    qtyInput.readOnly = true;
+    qtyInput.value = 0;
+  } else {
+    commentsContainer.classList.add('hidden');
+    qtyInput.readOnly = false;
+  }
+
   calculatePrice();
 }
+
+// Comments ရေးလိုက်လျှင် တစ်ကြောင်းချင်းစီအလိုက် Quantity အလိုအလျောက် တွက်ချက်ခြင်း
+document.getElementById('orderComments')?.addEventListener('input', (e) => {
+  const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
+  const count = lines.length;
+  document.getElementById('commentCount').innerText = `${count} Lines`;
+  document.getElementById('orderQuantity').value = count;
+  calculatePrice();
+});
 
 document.getElementById('orderQuantity')?.addEventListener('input', calculatePrice);
 
@@ -238,15 +270,19 @@ function resetDetails() {
   if (charge) charge.innerText = "0 Ks";
   const time = document.getElementById('detailTime');
   if (time) time.innerText = "-";
+  document.getElementById('commentsContainer')?.classList.add('hidden');
+  document.getElementById('orderComments').value = "";
+  document.getElementById('orderQuantity').readOnly = false;
 }
 
-// Order Form Submit
+// Order Submit
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!selectedService) return alert("Service ရွေးပေးပါ။");
 
   const qty = parseInt(document.getElementById('orderQuantity').value);
   const link = document.getElementById('orderLink').value;
+  const comments = document.getElementById('orderComments').value;
   const total = Math.ceil((qty / 1000) * selectedService.rate);
 
   if (qty < selectedService.min_qty || qty > selectedService.max_qty) {
@@ -268,6 +304,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
     target_link: link,
     quantity: qty,
     charge: total,
+    comments: comments || null,
     status: 'pending'
   }]).select().single();
 
@@ -303,4 +340,4 @@ window.closeSuccessModal = function() {
 };
 
 initUserDashboard();
-                                                           
+      
