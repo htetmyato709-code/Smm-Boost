@@ -39,11 +39,15 @@ async function loadUsers() {
   }
 
   // Update Stats UI
-  document.getElementById('statUsers').innerText = users.length;
+  if(document.getElementById('statUsers')) {
+    document.getElementById('statUsers').innerText = users.length;
+  }
 
   tbody.innerHTML = '';
   users.forEach(u => {
-    const roleBadge = u.role === 'admin' ? '<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold">ADMIN</span>' : '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">USER</span>';
+    const roleBadge = u.role === 'admin' 
+      ? '<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded text-[10px] font-bold">ADMIN</span>' 
+      : '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">USER</span>';
     const date = new Date(u.created_at).toLocaleDateString();
     
     tbody.innerHTML += `
@@ -72,10 +76,12 @@ async function loadAdminOrders() {
   }
 
   // Stats
-  document.getElementById('statTotalOrders').innerText = orders.length;
-  document.getElementById('statCompleted').innerText = orders.filter(o => o.status === 'completed').length;
-  const rev = orders.filter(o => o.status === 'completed').reduce((sum, curr) => sum + Number(curr.charge || 0), 0);
-  document.getElementById('statRevenue').innerText = `K ${rev.toLocaleString()}`;
+  if(document.getElementById('statTotalOrders')) {
+    document.getElementById('statTotalOrders').innerText = orders.length;
+    document.getElementById('statCompleted').innerText = orders.filter(o => o.status === 'completed').length;
+    const rev = orders.filter(o => o.status === 'completed').reduce((sum, curr) => sum + Number(curr.charge || 0), 0);
+    document.getElementById('statRevenue').innerText = `K ${rev.toLocaleString()}`;
+  }
 
   container.innerHTML = '';
   orders.forEach(order => {
@@ -126,6 +132,7 @@ window.loadPendingDeposits = async function() {
   if (!tbody) return;
 
   const { data: deposits } = await supabase.from('deposits').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+  
   if (!deposits || deposits.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-slate-500">No pending deposits.</td></tr>';
     return;
@@ -149,11 +156,38 @@ window.loadPendingDeposits = async function() {
 };
 
 window.approveDeposit = async function(depositId, userId, amount) {
-  if (!confirm(`Add ${amount} Ks to user?`)) return;
-  const { data: profile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
-  await supabase.from('profiles').update({ balance: Number(profile?.balance || 0) + Number(amount) }).eq('id', userId);
+  if (!confirm(`ဒီအကောင့်ထဲသို့ ${amount} Ks ဖြည့်သွင်းပေးရန် သေချာပါသလား?`)) return;
+
+  // ၁။ User ရဲ့ Profile (လက်ကျန်ငွေ) ကို အရင်ရှာပါမည်
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('balance')
+    .eq('id', userId)
+    .single();
+
+  if (profileError) {
+    alert("Profile ရှာမတွေ့ပါ! (ဒီအကောင့်သည် RLS Error တက်နေချိန်က ဖွင့်ခဲ့သော အကောင့်ဖြစ်နိုင်ပါသည်။ အကောင့်သစ်ဖွင့်၍ စမ်းသပ်ပါ။)");
+    return;
+  }
+
+  const currentBal = Number(profile?.balance || 0);
+  const newBal = currentBal + Number(amount);
+
+  // ၂။ Balance ကို Update လုပ်ပါမည်
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ balance: newBal })
+    .eq('id', userId);
+
+  if (updateError) {
+    alert("Balance Update လုပ်ရာတွင် အမှားရှိပါသည်: " + updateError.message);
+    return;
+  }
+
+  // ၃။ Deposit ကို Approved ပြောင်းပါမည်
   await supabase.from('deposits').update({ status: 'approved' }).eq('id', depositId);
-  alert("Approved!");
+
+  alert("ငွေဖြည့်သွင်းခြင်း အောင်မြင်ပါသည်။");
   loadPendingDeposits();
   loadUsers();
 };
@@ -201,6 +235,7 @@ document.getElementById('settingsForm')?.addEventListener('submit', async (e) =>
 // ==========================================
 document.getElementById('addServiceForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  
   const serviceData = {
     platform: document.getElementById('s_platform').value,
     category: document.getElementById('s_category').value,
@@ -213,9 +248,15 @@ document.getElementById('addServiceForm')?.addEventListener('submit', async (e) 
     max_qty: parseInt(document.getElementById('s_max').value),
     note: document.getElementById('s_note').value
   };
-  await supabase.from('services').insert([serviceData]);
-  alert("Service Added!");
-  e.target.reset();
+  
+  const { error } = await supabase.from('services').insert([serviceData]);
+  
+  if (error) {
+    alert("Service သိမ်းဆည်းရာတွင် အမှားရှိပါသည်: " + error.message);
+  } else {
+    alert("Service အသစ် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။");
+    e.target.reset();
+  }
 });
 
 // Run Init
