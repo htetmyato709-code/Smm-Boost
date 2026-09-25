@@ -7,7 +7,7 @@ let servicesList = [];
 let selectedService = null;
 let activePlatformFilter = "All";
 
-// Dropdown အတွင်း ထည့်သွင်းပြသရန် တိကျကြည်လင်သော Inline SVG Logos
+// Dropdown အတွင်း အမြဲကြည်လင်ပြတ်သားစွာ ပေါ်နေစေမည့် Inline SVGs
 const platformSvgs = {
   tiktok: `<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V9.45a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 3.14 15.717a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V8.868a8.196 8.196 0 0 0 4.775 1.523V6.946a4.835 4.835 0 0 1-1-.26z" fill="#00F2FE"/><path d="M18.589 5.686a4.793 4.793 0 0 1-3.77-4.245V1h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V8.45a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 2.14 14.717a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V7.868a8.196 8.196 0 0 0 4.775 1.523V5.946a4.835 4.835 0 0 1-1-.26z" fill="#FE2C55"/><path d="M19.089 6.186a4.793 4.793 0 0 1-3.77-4.245V1.5h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V8.95a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 2.64 15.217a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V8.368a8.196 8.196 0 0 0 4.775 1.523V6.446a4.835 4.835 0 0 1-1-.26z" fill="#FFFFFF"/></svg>`,
   telegram: `<svg class="w-4 h-4 text-[#24A1DE] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/></svg>`,
@@ -23,23 +23,51 @@ async function initUserDashboard() {
     return;
   }
   currentUser = user;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, email, balance')
+    .eq('id', user.id)
+    .single();
+
+  const username = profile?.username || user.email.split('@')[0];
+  currentBalance = Number(profile?.balance || 0);
+
+  if (document.getElementById('navUsernameDisplay')) document.getElementById('navUsernameDisplay').innerText = username;
+  if (document.getElementById('drawerUsernameDisplay')) document.getElementById('drawerUsernameDisplay').innerText = username;
+  if (document.getElementById('drawerEmailDisplay')) document.getElementById('drawerEmailDisplay').innerText = user.email;
+  if (document.getElementById('bannerUsername')) document.getElementById('bannerUsername').innerText = username;
   
-  if (document.getElementById('userEmailDisplay')) {
-    document.getElementById('userEmailDisplay').innerText = user.email;
-  }
+  const formattedBal = `${currentBalance.toLocaleString()} MMK`;
+  if (document.getElementById('userBalanceDisplay')) document.getElementById('userBalanceDisplay').innerText = formattedBal;
+  if (document.getElementById('bannerBalance')) document.getElementById('bannerBalance').innerText = formattedBal;
 
   if (user.email === ADMIN_EMAIL && document.getElementById('adminPanelLink')) {
     document.getElementById('adminPanelLink').classList.remove('hidden');
     document.getElementById('adminPanelLink').classList.add('block');
   }
 
-  const { data: profile } = await supabase.from('profiles').select('balance').eq('id', user.id).single();
-  if (profile && document.getElementById('userBalanceDisplay')) {
-    currentBalance = Number(profile.balance || 0);
-    document.getElementById('userBalanceDisplay').innerText = `${currentBalance.toLocaleString()} Ks`;
-  }
-
+  await loadUserStats();
   await loadServicesFromDB();
+}
+
+async function loadUserStats() {
+  const { data: userOrders } = await supabase
+    .from('orders')
+    .select('charge')
+    .eq('user_id', currentUser.id);
+
+  if (userOrders) {
+    const totalCount = userOrders.length;
+    const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.charge || 0), 0);
+
+    if (document.getElementById('userTotalOrders')) {
+      document.getElementById('userTotalOrders').innerText = totalCount.toLocaleString();
+    }
+    if (document.getElementById('userTotalSpent')) {
+      document.getElementById('userTotalSpent').innerText = `${totalSpent.toLocaleString()} MMK`;
+    }
+  }
 }
 
 // Side Drawer Controls
@@ -93,8 +121,8 @@ window.selectPlatformFilter = function(platform) {
   document.getElementById('selectedServText').innerText = "-- အရင်ဆုံး Category ရွေးပါ --";
   resetDetails();
 };
-
-// Dropdowns Toggle
+      
+// Dropdowns Toggle Controls
 window.toggleCatDropdown = function(e) {
   e.stopPropagation();
   document.getElementById('servDropdownList').classList.add('hidden');
@@ -112,7 +140,7 @@ window.addEventListener('click', () => {
   document.getElementById('servDropdownList')?.classList.add('hidden');
 });
 
-// Load Services
+// Load Services from Database
 async function loadServicesFromDB() {
   const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
   if (!error && data) {
@@ -189,7 +217,7 @@ function selectCategory(catName, platformName, svgIcon) {
         </span>
       </div>
       <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800/80">
-        <span class="font-bold text-blue-400">${Number(s.rate).toLocaleString()} Ks / 1K</span>
+        <span class="font-bold text-blue-400">${Number(s.rate).toLocaleString()} MMK / 1K</span>
         <span class="text-slate-400">Min: ${Number(s.min_qty).toLocaleString()} - Max: ${Number(s.max_qty).toLocaleString()}</span>
       </div>
     `;
@@ -208,7 +236,7 @@ function selectServiceItem(service, displayId) {
     <span class="w-5 h-5 bg-blue-600 text-white rounded-full inline-flex items-center justify-center text-[10px] font-bold flex-shrink-0">
       ${displayId}
     </span>
-    <span class="text-white truncate font-medium text-xs">${service.name} (${Number(service.rate).toLocaleString()} Ks)</span>
+    <span class="text-white truncate font-medium text-xs">${service.name} (${Number(service.rate).toLocaleString()} MMK)</span>
   `;
   document.getElementById('servDropdownList').classList.add('hidden');
 
@@ -218,7 +246,6 @@ function selectServiceItem(service, displayId) {
   document.getElementById('detailMin').innerText = Number(service.min_qty).toLocaleString();
   document.getElementById('detailMax').innerText = Number(service.max_qty).toLocaleString();
   
-  // Custom Comments Check
   const isComment = service.name.toLowerCase().includes('comment') || service.category.toLowerCase().includes('comment');
   const commentsContainer = document.getElementById('commentsContainer');
   const qtyInput = document.getElementById('orderQuantity');
@@ -233,9 +260,8 @@ function selectServiceItem(service, displayId) {
   }
 
   calculatePrice();
-}
-
-// Comments line count calculate
+                          }
+// Comments Line Auto Counter
 document.getElementById('orderComments')?.addEventListener('input', (e) => {
   const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
   const count = lines.length;
@@ -250,9 +276,9 @@ function calculatePrice() {
   const qty = parseInt(document.getElementById('orderQuantity').value) || 0;
   if (selectedService && qty > 0) {
     const total = Math.ceil((qty / 1000) * selectedService.rate);
-    document.getElementById('totalCharge').innerText = `${total.toLocaleString()} Ks`;
+    document.getElementById('totalCharge').innerText = `${total.toLocaleString()} MMK`;
   } else {
-    document.getElementById('totalCharge').innerText = "0 Ks";
+    document.getElementById('totalCharge').innerText = "0 MMK";
   }
 }
 
@@ -261,7 +287,7 @@ function resetDetails() {
   const box = document.getElementById('serviceDetailsBox');
   if (box) box.classList.add('hidden');
   const charge = document.getElementById('totalCharge');
-  if (charge) charge.innerText = "0 Ks";
+  if (charge) charge.innerText = "0 MMK";
   const time = document.getElementById('detailTime');
   if (time) time.innerText = "-";
   document.getElementById('commentsContainer')?.classList.add('hidden');
@@ -312,21 +338,15 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   const newBalance = currentBalance - total;
   await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
 
-  // Success Modal
+  // Success Modal Fill
   document.getElementById('modalOrderId').innerText = `#${newOrder.numeric_id || newOrder.id.slice(0, 4)}`;
   document.getElementById('modalLink').innerText = link;
   document.getElementById('modalQty').innerText = qty.toLocaleString();
-  document.getElementById('modalCharge').innerText = `${total.toLocaleString()} Ks`;
-  document.getElementById('modalBal').innerText = `${newBalance.toLocaleString()} Ks`;
+  document.getElementById('modalCharge').innerText = `${total.toLocaleString()} MMK`;
+  document.getElementById('modalBal').innerText = `${newBalance.toLocaleString()} MMK`;
 
   const modal = document.getElementById('successModal');
-  const content = document.getElementById('modalContent');
   modal.classList.remove('hidden');
-  
-  setTimeout(() => {
-    content.classList.remove('scale-95', 'opacity-0');
-    content.classList.add('scale-100', 'opacity-100');
-  }, 10);
 });
 
 window.closeSuccessModal = function() {
@@ -334,4 +354,4 @@ window.closeSuccessModal = function() {
 };
 
 initUserDashboard();
-    
+                                                       
