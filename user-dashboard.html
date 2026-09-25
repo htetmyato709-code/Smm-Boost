@@ -22,13 +22,22 @@
 
   <!-- Top Navbar -->
   <header class="glass sticky top-0 z-40 px-4 py-3 flex justify-between items-center border-b border-slate-800">
-    <div>
+    <div class="flex items-center gap-3">
       <h1 class="text-lg font-black text-indigo-400 tracking-wider">SMM BOOST</h1>
     </div>
-    <div class="flex items-center gap-3">
-      <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30 flex items-center gap-2">
-        <span class="text-sm font-bold text-emerald-400" id="userBalanceDisplay">0 Ks</span>
+    <div class="flex items-center gap-2">
+      <!-- Navbar Username Display -->
+      <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300">
+        <span class="text-indigo-400">👤</span>
+        <span id="navUsernameDisplay">User</span>
       </div>
+
+      <!-- Balance Card (MMK Unit) -->
+      <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30 flex items-center gap-2">
+        <span class="text-xs font-bold text-emerald-400" id="userBalanceDisplay">0 MMK</span>
+      </div>
+
+      <!-- Hamburger Menu Button -->
       <button onclick="openDrawer()" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition">
         <span class="text-slate-200 font-bold leading-none">☰</span>
       </button>
@@ -41,8 +50,9 @@
   <div id="sideDrawer" class="fixed top-0 right-0 h-full w-72 bg-[#0B1120] border-l border-slate-800 z-[100] transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
     <div class="p-5 flex justify-between items-center border-b border-slate-800">
       <div class="overflow-hidden">
-        <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">LOGGED IN AS</p>
-        <p class="text-sm font-bold text-indigo-400 truncate" id="userEmailDisplay">Loading...</p>
+        <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">LOGGED IN AS</p>
+        <p class="text-sm font-bold text-indigo-400 truncate" id="drawerUsernameDisplay">Loading...</p>
+        <p class="text-[11px] text-slate-500 truncate" id="drawerEmailDisplay">user@email.com</p>
       </div>
       <button onclick="closeDrawer()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
     </div>
@@ -57,7 +67,7 @@
       <a href="topup.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
         ငွေဖြည့်ရန် (Topup)
       </a>
-      <a href="order.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
+      <a href="orders.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
         အော်ဒါမှတ်တမ်း (History)
       </a>
       <a href="ai-support.html" class="px-5 py-3.5 text-sm text-indigo-300 hover:bg-slate-800/50 rounded-2xl transition flex items-center gap-2 border border-indigo-500/20 bg-indigo-900/10">
@@ -78,15 +88,37 @@
 
   <main class="max-w-xl mx-auto p-4 md:p-6 space-y-4">
 
-    <!-- Platform Categories Selection Bar (ကြည်လင်ပြတ်သားသော Vector SVG Logos) -->
+    <!-- Professional Welcome Card & User Quick Stats -->
+    <div class="glass p-5 rounded-3xl border border-indigo-500/20 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-400">Welcome back 👋</p>
+          <h2 class="text-lg font-black text-white" id="bannerUsername">User</h2>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] text-slate-400 uppercase tracking-wider">Available Balance</p>
+          <p class="text-base font-black text-emerald-400" id="bannerBalance">0 MMK</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
+        <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+          <p class="text-[11px] text-slate-400">Total Orders</p>
+          <p class="text-base font-black text-indigo-400 mt-0.5" id="userTotalOrders">0</p>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+          <p class="text-[11px] text-slate-400">Total Spent</p>
+          <p class="text-base font-black text-indigo-400 mt-0.5" id="userTotalSpent">0 MMK</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Categories Selection Bar (Inline SVGs) -->
     <div class="flex items-center gap-2.5 overflow-x-auto pb-1 pt-1 hide-scrollbar" id="platformFilterBar">
-      
-      <!-- အားလုံး -->
       <button onclick="selectPlatformFilter('All')" id="btnPlat-All" class="platform-tab active flex items-center gap-2 px-4 py-2 rounded-2xl bg-blue-600 text-white border border-blue-500 text-xs font-semibold whitespace-nowrap transition shadow-md shadow-blue-600/30">
         <span>☰</span> အားလုံး
       </button>
 
-      <!-- TikTok -->
       <button onclick="selectPlatformFilter('TikTok')" id="btnPlat-TikTok" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
         <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
           <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V9.45a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 3.14 15.717a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V8.868a8.196 8.196 0 0 0 4.775 1.523V6.946a4.835 4.835 0 0 1-1-.26z" fill="#00F2FE"/>
@@ -96,7 +128,6 @@
         <span>TikTok</span>
       </button>
 
-      <!-- Telegram -->
       <button onclick="selectPlatformFilter('Telegram')" id="btnPlat-Telegram" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
         <svg class="w-4 h-4 text-[#24A1DE] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
@@ -104,7 +135,6 @@
         <span>Telegram</span>
       </button>
 
-      <!-- YouTube -->
       <button onclick="selectPlatformFilter('YouTube')" id="btnPlat-YouTube" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
         <svg class="w-4 h-4 text-[#FF0000] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
           <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -112,7 +142,6 @@
         <span>YouTube</span>
       </button>
 
-      <!-- Facebook -->
       <button onclick="selectPlatformFilter('Facebook')" id="btnPlat-Facebook" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
         <svg class="w-4 h-4 text-[#1877F2] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -120,14 +149,12 @@
         <span>Facebook</span>
       </button>
 
-      <!-- Instagram -->
       <button onclick="selectPlatformFilter('Instagram')" id="btnPlat-Instagram" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
         <svg class="w-4 h-4 text-[#E4405F] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
         </svg>
         <span>Instagram</span>
       </button>
-
     </div>
 
     <!-- New Order Card -->
@@ -183,7 +210,7 @@
           </div>
         </div>
 
-        <!-- 5. Comments Section (Auto count for custom comment services) -->
+        <!-- 5. Comments Section -->
         <div id="commentsContainer" class="hidden space-y-1.5">
           <label class="block text-xs text-slate-400 flex justify-between">
             <span>Comments (တစ်ကြောင်းလျှင် Comment တစ်ခုစီ ရေးပါ)</span>
@@ -201,7 +228,7 @@
           </div>
         </div>
 
-        <!-- 7. Time & Total Charge Display -->
+        <!-- 7. Time & Total Charge Display (MMK) -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center bg-slate-900/50 px-4 py-3 rounded-2xl border border-slate-800">
             <span class="text-xs text-slate-400 flex items-center gap-1.5">⏱ Order ပျမ်းမျှ ကြာချိန်:</span>
@@ -209,7 +236,7 @@
           </div>
           <div class="flex justify-between items-center bg-indigo-950/20 px-4 py-3 rounded-2xl border border-indigo-500/20">
             <span class="text-xs text-slate-400">ကျသင့်ငွေ:</span>
-            <span class="text-base font-black text-indigo-400" id="totalCharge">0 Ks</span>
+            <span class="text-base font-black text-indigo-400" id="totalCharge">0 MMK</span>
           </div>
         </div>
 
@@ -233,7 +260,7 @@
     </div>
   </div>
 
-  <!-- Success Modal -->
+  <!-- Success Modal (MMK Unit) -->
   <div id="successModal" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
     <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative text-center space-y-4 transform transition-all scale-95 opacity-0" id="modalContent">
       <div class="w-14 h-14 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500">
@@ -256,15 +283,15 @@
         </div>
         <div class="flex justify-between items-center text-xs">
           <span class="text-slate-400">ကျသင့်ငွေ:</span>
-          <span class="font-bold text-rose-400" id="modalCharge">0 Ks</span>
+          <span class="font-bold text-rose-400" id="modalCharge">0 MMK</span>
         </div>
         <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs">
           <span class="text-slate-400">လက်ကျန်ငွေ:</span>
-          <span class="text-sm font-bold text-indigo-400" id="modalBal">0 Ks</span>
+          <span class="text-sm font-bold text-indigo-400" id="modalBal">0 MMK</span>
         </div>
       </div>
 
-      <button onclick="closeSuccessModal()" class="w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+            <button onclick="closeSuccessModal()" class="w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
         အိုကေ (OK)
       </button>
     </div>
@@ -272,5 +299,4 @@
 
   <script type="module" src="js/user.js"></script>
 </body>
-  </html>
-          
+</html>
