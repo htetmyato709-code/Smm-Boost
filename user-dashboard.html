@@ -26,18 +26,13 @@
       <h1 class="text-lg font-black text-indigo-400 tracking-wider">SMM BOOST</h1>
     </div>
     <div class="flex items-center gap-2">
-      <!-- Navbar Username Display -->
       <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300">
         <span class="text-indigo-400">👤</span>
         <span id="navUsernameDisplay">User</span>
       </div>
-
-      <!-- Balance Card (MMK Unit) -->
       <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30 flex items-center gap-2">
         <span class="text-xs font-bold text-emerald-400" id="userBalanceDisplay">0 MMK</span>
       </div>
-
-      <!-- Hamburger Menu Button -->
       <button onclick="openDrawer()" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition">
         <span class="text-slate-200 font-bold leading-none">☰</span>
       </button>
@@ -73,7 +68,6 @@
       <a href="ai-support.html" class="px-5 py-3.5 text-sm text-indigo-300 hover:bg-slate-800/50 rounded-2xl transition flex items-center gap-2 border border-indigo-500/20 bg-indigo-900/10">
         <span>🤖</span> 24/7 AI အကူအညီ (AI Support)
       </a>
-      
       <a href="admin-dashboard.html" id="adminPanelLink" class="hidden mt-4 px-5 py-3.5 text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-2xl font-bold transition">
         Admin Panel သို့သွားရန်
       </a>
@@ -88,7 +82,7 @@
 
   <main class="max-w-xl mx-auto p-4 md:p-6 space-y-4">
 
-    <!-- Professional Welcome Card & User Quick Stats -->
+    <!-- Welcome Card & User Quick Stats -->
     <div class="glass p-5 rounded-3xl border border-indigo-500/20 space-y-4">
       <div class="flex items-center justify-between">
         <div>
@@ -162,7 +156,7 @@
       <h2 class="text-base font-bold text-indigo-300">New Order တင်ရန်</h2>
       <form id="orderForm" class="space-y-4">
         
-        <!-- 1. Category Custom Dropdown -->
+        <!-- Category Custom Dropdown -->
         <div>
           <label class="block text-xs text-slate-400 mb-1.5">အမျိုးအစား (Category)</label>
           <div class="relative">
@@ -176,7 +170,7 @@
           </div>
         </div>
 
-        <!-- 2. Service Custom Dropdown -->
+        <!-- Service Custom Dropdown -->
         <div>
           <label class="block text-xs text-slate-400 mb-1.5">ဝန်ဆောင်မှု (Service)</label>
           <div class="relative">
@@ -190,7 +184,7 @@
           </div>
         </div>
 
-        <!-- 3. NOTES Box -->
+        <!-- NOTES Box -->
         <div id="serviceDetailsBox" class="hidden bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2.5">
           <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-bold">
             <span>ℹ️</span> NOTES (ဖတ်ရန်)
@@ -201,7 +195,7 @@
           </div>
         </div>
 
-        <!-- 4. Link Input -->
+        <!-- Link Input -->
         <div>
           <label class="block text-xs text-slate-400 mb-1.5">Link (လင့်ခ်)</label>
           <div class="relative">
@@ -210,7 +204,7 @@
           </div>
         </div>
 
-        <!-- 5. Comments Section -->
+        <!-- Comments Section -->
         <div id="commentsContainer" class="hidden space-y-1.5">
           <label class="block text-xs text-slate-400 flex justify-between">
             <span>Comments (တစ်ကြောင်းလျှင် Comment တစ်ခုစီ ရေးပါ)</span>
@@ -219,7 +213,7 @@
           <textarea id="orderComments" rows="4" placeholder="Good video!&#10;Awesome content!&#10;Love this..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-3 text-sm focus:outline-none focus:border-indigo-500"></textarea>
         </div>
 
-        <!-- 6. Quantity Input -->
+        <!-- Quantity Input -->
         <div id="quantityContainer">
           <label class="block text-xs text-slate-400 mb-1.5">Quantity (အရေအတွက်)</label>
           <div class="relative">
@@ -228,7 +222,7 @@
           </div>
         </div>
 
-        <!-- 7. Time & Total Charge Display (MMK) -->
+        <!-- Time & Total Charge Display (MMK) -->
         <div class="space-y-2 pt-1">
           <div class="flex justify-between items-center bg-slate-900/50 px-4 py-3 rounded-2xl border border-slate-800">
             <span class="text-xs text-slate-400 flex items-center gap-1.5">⏱ Order ပျမ်းမျှ ကြာချိန်:</span>
@@ -260,43 +254,43 @@
     </div>
   </div>
 
-  <!-- Success Modal (MMK Unit) -->
-  <div id="successModal" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl relative text-center space-y-4 transform transition-all scale-95 opacity-0" id="modalContent">
-      <div class="w-14 h-14 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500">
-        <span class="text-2xl text-emerald-400 font-bold">✓</span>
+  <!-- Success Modal (Fixed) -->
+  <div id="successModal" class="hidden fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 md:p-7 max-w-sm w-full shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500 text-emerald-400 text-2xl font-bold">
+        ✓
       </div>
-      <h2 class="text-base font-bold text-white leading-tight">Order အောင်မြင်စွာ<br>တင်ပြီးပါပြီ!</h2>
-      
-      <div class="bg-slate-950/80 rounded-2xl p-4 text-left space-y-2.5 border border-slate-800 mt-4">
-        <div class="text-center border-b border-slate-800 pb-2.5 mb-1">
+      <div>
+        <h2 class="text-lg font-bold text-white">Order အောင်မြင်စွာ တင်ပြီးပါပြီ!</h2>
+        <p class="text-xs text-slate-400 mt-1">အချက်အလက်များကို အောက်တွင် စစ်ဆေးနိုင်ပါသည်</p>
+      </div>
+      <div class="bg-slate-950/90 rounded-2xl p-4 text-left space-y-2.5 border border-slate-800 text-xs">
+        <div class="text-center pb-2.5 border-b border-slate-800">
           <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Order ID</p>
           <h1 class="text-2xl font-black text-emerald-400 tracking-wider" id="modalOrderId">#0</h1>
         </div>
         <div class="space-y-0.5">
-          <p class="text-[10px] text-slate-500">Link:</p>
-          <p class="text-xs text-blue-400 font-medium truncate" id="modalLink">-</p>
+          <span class="text-slate-500 text-[10px]">Link:</span>
+          <p class="truncate text-blue-400 font-medium" id="modalLink">-</p>
         </div>
-        <div class="flex justify-between items-center text-xs">
+        <div class="flex justify-between items-center">
           <span class="text-slate-400">Quantity:</span>
           <span class="font-bold text-slate-200" id="modalQty">0</span>
         </div>
-        <div class="flex justify-between items-center text-xs">
+        <div class="flex justify-between items-center">
           <span class="text-slate-400">ကျသင့်ငွေ:</span>
           <span class="font-bold text-rose-400" id="modalCharge">0 MMK</span>
         </div>
-        <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs">
+        <div class="flex justify-between items-center pt-2 border-t border-slate-800">
           <span class="text-slate-400">လက်ကျန်ငွေ:</span>
-          <span class="text-sm font-bold text-indigo-400" id="modalBal">0 MMK</span>
+          <span class="font-bold text-indigo-400" id="modalBal">0 MMK</span>
         </div>
       </div>
-
-            <button onclick="closeSuccessModal()" class="w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+      <button type="button" onclick="closeSuccessModal()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-600/30">
         အိုကေ (OK)
       </button>
     </div>
   </div>
-
-  <script type="module" src="js/user.js"></script>
+    <script type="module" src="js/user.js"></script>
 </body>
 </html>
