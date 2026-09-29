@@ -3,299 +3,647 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - StarGrow</title>
+  <title>Admin Dashboard - SMM Boost</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { background-color: #f4f7fc; }
-    .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); }
+    .glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
-    
-    .admin-tab-btn {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      height: 38px !important;
-      min-height: 38px !important;
-      max-height: 38px !important;
-      padding: 0 16px !important;
-      border-radius: 12px !important;
-      font-size: 13px !important;
-      font-weight: 700 !important;
-      white-space: nowrap !important;
-      flex-shrink: 0 !important;
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-wave {
+      animation: waveMove 10s linear infinite;
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen pb-20">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 overflow-x-hidden">
 
-  <!-- Top Navbar -->
-  <header class="bg-white px-4 py-3 flex justify-between items-center shadow-sm sticky top-0 z-40">
-    <div class="flex items-center gap-2">
-      <h1 class="text-xl font-black text-slate-900 tracking-tight">StarGrow</h1>
-      <span class="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-md">SUPER ADMIN</span>
+  <!-- Admin Navbar -->
+  <header class="glass sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center border-b border-slate-800">
+    <div class="flex items-center gap-2.5">
+      <a href="user-dashboard.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition">
+        ←
+      </a>
+      <div>
+        <h1 class="text-base font-black text-amber-400 tracking-wider">ADMIN PANEL</h1>
+        <p class="text-[10px] text-slate-400">System Overview & Management</p>
+      </div>
     </div>
     <div class="flex items-center gap-2">
-      <a href="user-dashboard.html" class="bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1">← User Panel</a>
-      <button id="logoutBtn" class="bg-slate-100 text-rose-500 text-xs px-3 py-1.5 rounded-lg font-bold flex items-center">Logout</button>
+      <span class="px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+        🛡️ Owner
+      </span>
     </div>
   </header>
 
-  <main class="max-w-2xl mx-auto p-4 space-y-4">
-    
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 gap-3">
-      <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100">
-        <div class="text-[11px] font-bold text-slate-400 flex justify-between">Total Users <span class="text-purple-500">👥</span></div>
-        <div class="text-2xl font-black mt-1 text-purple-600" id="statUsers">0</div>
+  <main class="max-w-xl mx-auto p-4 space-y-5">
+
+    <!-- 1. Total Orders Large Banner with Dynamic Wave & Daily % Rate -->
+    <div class="relative overflow-hidden glass rounded-3xl border border-indigo-500/30 p-5 shadow-2xl">
+      <div class="relative z-10 flex justify-between items-start">
+        <div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total All Orders</span>
+          <h2 class="text-4xl font-black text-white mt-1 tracking-tight" id="dashTotalOrders">0</h2>
+        </div>
+        <div class="flex flex-col items-end">
+          <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+            <span id="dashRateIcon">↑</span>
+            <span id="dashOrderRate">+0%</span>
+          </div>
+          <span class="text-[10px] text-slate-400 mt-1">Today vs Yesterday</span>
+        </div>
       </div>
-      <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100">
-        <div class="text-[11px] font-bold text-slate-400 flex justify-between">Total Orders <span class="text-blue-500">📊</span></div>
-        <div class="text-2xl font-black mt-1 text-slate-800" id="statTotalOrders">0</div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="relative z-10 grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+        <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400">Total Members</span>
+          <p class="text-sm font-black text-indigo-400 mt-0.5" id="dashTotalUsers">0 Users</p>
+        </div>
+        <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400">Total Platform Sales</span>
+          <p class="text-sm font-black text-emerald-400 mt-0.5" id="dashTotalSales">0 MMK</p>
+        </div>
       </div>
-      <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100">
-        <div class="text-[11px] font-bold text-slate-400 flex justify-between">Completed <span class="text-emerald-500">✔️</span></div>
-        <div class="text-2xl font-black text-emerald-500 mt-1" id="statCompleted">0</div>
-      </div>
-      <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100">
-        <div class="text-[11px] font-bold text-slate-400 flex justify-between">Revenue <span class="text-indigo-500">💵</span></div>
-        <div class="text-xl font-black text-indigo-600 mt-1" id="statRevenue">K 0</div>
+
+      <!-- SVG Animated Waves Background -->
+      <div class="absolute -bottom-1 left-0 right-0 h-16 pointer-events-none opacity-40 overflow-hidden">
+        <div class="w-[200%] h-full flex animate-wave">
+          <svg class="w-1/2 h-full fill-indigo-600/30" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z"></path>
+          </svg>
+          <svg class="w-1/2 h-full fill-indigo-600/30" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z"></path>
+          </svg>
+        </div>
       </div>
     </div>
 
-    <!-- Horizontal Tab Bar -->
-    <div class="w-full bg-white p-1.5 rounded-2xl card-shadow border border-slate-100 flex items-center gap-2 overflow-x-auto hide-scrollbar">
-      <button type="button" onclick="switchTab('orders')" id="tab_orders" class="admin-tab-btn bg-blue-600 text-white shadow-md shadow-blue-500/20">
-        ☰ Orders
+    <!-- Navigation Tabs for Admin Sections -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
+      <button onclick="switchTab('providers')" id="tabBtn-providers" class="admin-tab active px-4 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-bold whitespace-nowrap shadow-md shadow-indigo-600/30">
+        🔌 Providers
       </button>
-      <button type="button" onclick="switchTab('deposits')" id="tab_deposits" class="admin-tab-btn text-slate-500 hover:bg-slate-100">
-        💳 Deposits
+      <button onclick="switchTab('services')" id="tabBtn-services" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
+        📦 Services
       </button>
-      <button type="button" onclick="switchTab('services')" id="tab_services" class="admin-tab-btn text-slate-500 hover:bg-slate-100">
-        ➕ Services
-      </button>
-      <button type="button" onclick="switchTab('users')" id="tab_users" class="admin-tab-btn text-slate-500 hover:bg-slate-100">
+      <button onclick="switchTab('users')" id="tabBtn-users" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
         👥 Users
       </button>
-      <button type="button" onclick="switchTab('settings')" id="tab_settings" class="admin-tab-btn text-slate-500 hover:bg-slate-100">
-        ⚙️ Settings
+      <button onclick="switchTab('deposits')" id="tabBtn-deposits" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
+        💳 Topups
       </button>
     </div>
 
-    <!-- TAB 1: Orders (With Comments Display) -->
-    <section id="sec_orders" class="space-y-3 block">
-      <div id="ordersContainer" class="space-y-3"></div>
-    </section>
-
-    <!-- TAB 2: Deposits -->
-    <section id="sec_deposits" class="hidden bg-white p-5 rounded-2xl card-shadow border border-slate-100 space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <h2 class="font-bold text-slate-800 text-sm">ငွေသွင်းတောင်းဆိုမှုများ (Pending Deposits)</h2>
-        <button onclick="loadPendingDeposits()" class="text-xs text-blue-600 hover:underline font-semibold">Refresh</button>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs whitespace-nowrap">
-          <thead class="text-slate-400 border-b border-slate-100">
-            <tr>
-              <th class="py-2.5 px-2">User Email</th>
-              <th class="py-2.5 px-2">Method</th>
-              <th class="py-2.5 px-2">Amount</th>
-              <th class="py-2.5 px-2">Sender Name</th>
-              <th class="py-2.5 px-2">Slip</th>
-              <th class="py-2.5 px-2 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody id="depositTableBody" class="divide-y divide-slate-50"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- TAB 3: Services (Add & Manage List) -->
-    <section id="sec_services" class="hidden space-y-4">
-      <!-- Add / Edit Service Form -->
-      <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100 space-y-3">
-        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-          <h2 class="font-bold text-slate-800 text-sm" id="serviceFormTitle">Service အသစ်ထည့်ရန်</h2>
-          <button type="button" id="cancelEditBtn" onclick="cancelEditService()" class="hidden text-xs text-rose-500 hover:underline">Cancel Edit</button>
-        </div>
-
-        <form id="addServiceForm" class="space-y-3">
-          <input type="hidden" id="edit_service_id" value="">
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Platform</label>
-              <select id="s_platform" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-                <option value="TikTok">TikTok</option>
-                <option value="Telegram">Telegram</option>
-                <option value="YouTube">YouTube</option>
-                <option value="Instagram">Instagram</option>
-                <option value="Facebook">Facebook</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Category (အမျိုးအစား)</label>
-              <input type="text" id="s_category" required placeholder="TikTok Likes" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-          </div>
-
+    <!-- 2. SECTION: Providers Management (Unlimited Providers) -->
+    <section id="tabSec-providers" class="space-y-4">
+      <div class="glass p-5 rounded-3xl border border-slate-800 space-y-4">
+        <h3 class="text-sm font-bold text-indigo-300 flex items-center justify-between">
+          <span>Provider အသစ်ချိတ်ဆက်ရန်</span>
+          <span class="text-[10px] text-slate-400 font-normal">API & URL</span>
+        </h3>
+        
+        <form id="addProviderForm" class="space-y-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Service Name</label>
-            <input type="text" id="s_name" required placeholder="TikTok Likes | High Quality" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
+            <label class="block text-xs text-slate-400 mb-1">Provider Name (အမည်)</label>
+            <input type="text" id="provName" required placeholder="ဥပမာ - JapSMM, MainProvider" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
           </div>
-
-          <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-bold text-blue-900 mb-1">API Provider</label>
-              <select id="s_api_provider" required class="w-full bg-white border border-blue-200 rounded-xl px-3 py-2 text-xs">
-                <option value="Main API">Main API</option>
-                <option value="Manual">Manual</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-blue-900 mb-1">Provider Service ID (Optional)</label>
-              <input type="text" id="s_provider_id" placeholder="1054" class="w-full bg-white border border-blue-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Rate (1k Ks)</label>
-              <input type="number" id="s_rate" required placeholder="150" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Time</label>
-              <input type="text" id="s_time" placeholder="0-15 Min" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Min Qty</label>
-              <input type="number" id="s_min" required placeholder="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Max Qty</label>
-              <input type="number" id="s_max" required placeholder="100000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-          </div>
-
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Service Note (မှတ်ချက်)</label>
-            <textarea id="s_note" rows="2" placeholder="Instant start, Non drop..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs"></textarea>
+            <label class="block text-xs text-slate-400 mb-1">API URL (V2 URL)</label>
+            <input type="url" id="provUrl" required placeholder="https://example.com/api/v2" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
           </div>
-
-          <button type="submit" id="saveServiceBtn" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md shadow-blue-500/20">
-            Save Service
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">API Key</label>
+            <input type="text" id="provKey" required placeholder="API secret key..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+          <button type="submit" id="saveProviderBtn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition shadow-lg shadow-indigo-600/30">
+            Provider သိမ်းဆည်းမည်
           </button>
         </form>
       </div>
 
-      <!-- Service List Table (Edit & Delete) -->
-      <div class="bg-white p-5 rounded-2xl card-shadow border border-slate-100 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">လက်ရှိ Service များ စာရင်း</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs whitespace-nowrap">
-            <thead class="text-slate-400 border-b border-slate-100">
-              <tr>
-                <th class="py-2.5 px-2">ID</th>
-                <th class="py-2.5 px-2">Name</th>
-                <th class="py-2.5 px-2">Platform</th>
-                <th class="py-2.5 px-2">Rate</th>
-                <th class="py-2.5 px-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="servicesTableBody" class="divide-y divide-slate-50"></tbody>
-          </table>
+      <!-- Connected Providers List -->
+      <div class="space-y-2">
+        <p class="text-xs font-bold text-slate-400 px-1">ချိတ်ဆက်ထားသော Provider များ</p>
+        <div id="providersContainer" class="space-y-2">
+          <p class="text-xs text-slate-500 text-center py-4">Provider များ ရယူနေပါသည်...</p>
+        </div>
+      </div>
+    </section>
+        <!-- 3. SECTION: Services Management (Dynamic Provider ID Link) -->
+    <section id="tabSec-services" class="hidden space-y-4">
+      <div class="glass p-5 rounded-3xl border border-slate-800 space-y-4">
+        <h3 class="text-sm font-bold text-indigo-300">Service အသစ်ထည့်သွင်းရန်</h3>
+        <form id="addServiceForm" class="space-y-3">
+          
+          <!-- Select Connected Provider -->
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Provider ရွေးချယ်ပါ</label>
+            <select id="serviceProviderSelect" required class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="">-- Provider တစ်ခုရွေးပါ --</option>
+            </select>
+          </div>
+
+          <!-- Provider Service ID (Dynamic according to chosen provider) -->
+          <div>
+            <label class="block text-xs text-slate-400 mb-1" id="providerServiceIdLabel">Provider Service ID</label>
+            <input type="number" id="servProviderServiceId" required placeholder="ရွေးချယ်ထားသော Provider မှ Service ID (ဥပမာ - 1205)" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Platform</label>
+            <select id="servPlatform" required class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="TikTok">TikTok</option>
+              <option value="Telegram">Telegram</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Instagram">Instagram</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Category (အမျိုးအစား)</label>
+            <input type="text" id="servCategory" required placeholder="ဥပမာ - TikTok Followers [High Quality]" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Service Name (အမည်)</label>
+            <input type="text" id="servName" required placeholder="ဥပမာ - ⚡ TikTok Followers | Instant" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Rate (1K MMK)</label>
+              <input type="number" id="servRate" required placeholder="3500" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Min Qty</label>
+              <input type="number" id="servMin" required placeholder="100" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Max Qty</label>
+              <input type="number" id="servMax" required placeholder="100000" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">ပျမ်းမျှကြာချိန် (Average Time)</label>
+            <input type="text" id="servTime" placeholder="ဥပမာ - 10-30 မိနစ်" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2 text-xs text-slate-200 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Notes (ဖတ်ရန်မှတ်ချက်)</label>
+            <textarea id="servNote" rows="2" placeholder="လင့်ခ်မှန်ကန်စွာ ထည့်သွင်းပါ..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-3 text-xs text-slate-200 focus:outline-none"></textarea>
+          </div>
+
+          <button type="submit" id="saveServiceBtn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition shadow-lg shadow-indigo-600/30">
+            Service အသစ်ထည့်မည်
+          </button>
+        </form>
+      </div>
+
+      <!-- Services List -->
+      <div class="space-y-2">
+        <p class="text-xs font-bold text-slate-400 px-1">လက်ရှိ Service များ</p>
+        <div id="servicesContainer" class="space-y-2">
+          <p class="text-xs text-slate-500 text-center py-4">Services များ ရယူနေပါသည်...</p>
         </div>
       </div>
     </section>
 
-    <!-- TAB 4: Users -->
-    <section id="sec_users" class="hidden bg-white p-5 rounded-2xl card-shadow border border-slate-100 space-y-4">
-      <h2 class="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3">သုံးစွဲသူများ (Users List)</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs whitespace-nowrap">
-          <thead class="text-slate-400 border-b border-slate-100">
-            <tr>
-              <th class="py-2.5 px-2">Email</th>
-              <th class="py-2.5 px-2">Phone</th>
-              <th class="py-2.5 px-2">Role</th>
-              <th class="py-2.5 px-2">Balance</th>
-            </tr>
-          </thead>
-          <tbody id="usersTableBody" class="divide-y divide-slate-50"></tbody>
-        </table>
+    <!-- 4. SECTION: Users Management (Username, Email, Balance Edit) -->
+    <section id="tabSec-users" class="space-y-4 hidden">
+      <div class="flex items-center justify-between px-1">
+        <p class="text-xs font-bold text-slate-300">Users စာရင်းနှင့် ငွေလက်ကျန် ပြင်ဆင်ခြင်း</p>
+        <span class="text-[11px] text-indigo-400 font-bold" id="usersCountBadge">0 Users</span>
+      </div>
+
+      <div class="relative">
+        <input type="text" id="searchUserInput" placeholder="Username သို့မဟုတ် Email ဖြင့်ရှာရန်..." class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔍</span>
+      </div>
+
+      <div id="usersListContainer" class="space-y-2.5">
+        <p class="text-xs text-slate-500 text-center py-6">Users များ ရယူနေပါသည်...</p>
       </div>
     </section>
 
-    <!-- TAB 5: Settings -->
-    <section id="sec_settings" class="hidden bg-white p-5 rounded-2xl card-shadow border border-slate-100 space-y-4">
-      <h2 class="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3">API & Payment Settings</h2>
-      <form id="settingsForm" class="space-y-4">
-        <div class="space-y-2.5">
-          <h3 class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 inline-block rounded-md">Main Provider API</h3>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">API URL</label>
-            <input type="url" id="providerUrl" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">API Key</label>
-            <input type="text" id="providerApiKey" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-          </div>
-        </div>
+    <!-- 5. SECTION: Topups (Deposits) Management -->
+    <section id="tabSec-deposits" class="space-y-4 hidden">
+      <div class="flex items-center justify-between px-1">
+        <p class="text-xs font-bold text-slate-300">ငွေဖြည့်တောင်းဆိုမှုများ (Topups)</p>
+        <span class="text-[11px] text-amber-400 font-bold" id="pendingDepositsBadge">0 Pending</span>
+      </div>
 
-        <div class="space-y-2.5 border-t border-slate-100 pt-3">
-          <h3 class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 inline-block rounded-md">Payment Accounts</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">KPay Number</label>
-              <input type="text" id="kpayNumber" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">KPay Name</label>
-              <input type="text" id="kpayName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">WavePay Number</label>
-              <input type="text" id="waveNumber" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">WavePay Name</label>
-              <input type="text" id="waveName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs">
-            </div>
-          </div>
-        </div>
-
-        <button type="submit" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs">Save Settings</button>
-      </form>
+      <div id="depositsListContainer" class="space-y-3">
+        <p class="text-xs text-slate-500 text-center py-6">Topup တောင်းဆိုမှုများ ရယူနေပါသည်...</p>
+      </div>
     </section>
 
   </main>
 
-  <!-- View Comments Modal -->
-  <div id="commentsModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-slate-800 text-sm">Order Comments</h3>
-        <button onclick="closeCommentsModal()" class="text-slate-400 hover:text-slate-700 font-bold">&times;</button>
+  <!-- Edit User Balance Modal -->
+  <div id="editUserModal" class="hidden fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+      <div>
+        <h3 class="text-base font-bold text-white">User Balance ပြင်ဆင်ရန်</h3>
+        <p class="text-xs text-indigo-400 mt-0.5 truncate" id="editModalUserEmail">-</p>
       </div>
-      <div class="max-h-60 overflow-y-auto bg-slate-50 p-3 rounded-xl border border-slate-200">
-        <pre id="commentsModalContent" class="text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed"></pre>
-      </div>
-      <button onclick="closeCommentsModal()" class="w-full py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs">ပိတ်မည်</button>
-    </div>
-  </div>
 
-  <script type="module" src="js/admin.js"></script>
-  <script>
-    function switchTab(tabId) {
-      const tabs = ['orders', 'deposits', 'services', 'users', 'settings'];
-      tabs.forEach(t => {
-        document.getElementById('sec_' + t).classList.add('hidden');
-        document.getElementById('tab_' + t).className = "admin-tab-btn text-slate-500 hover:bg-slate-100";
-      });
-      document.getElementById('sec_' + tabId).classList.remove('hidden');
-      document.getElementById('tab_' + tabId).className = "admin-tab-btn bg-blue-600 text-white shadow-md shadow-blue-500/20";
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1 uppercase">လက်ရှိ လက်ကျန်ငွေ</label>
+          <p class="text-lg font-black text-emerald-400" id="editModalCurrentBal">0 MMK</p>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">လက်ကျန်ငွေ အသစ် သတ်မှတ်ရန် (MMK)</label>
+          <input type="number" id="editModalNewBal" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div class="flex gap-2.5 pt-2">
+        <button onclick="closeEditUserModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">ပယ်ဖျက်မည်</button>
+        <button onclick="saveUserBalance()" id="saveBalBtn" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30">သိမ်းဆည်းမည်</button>
+      </div>
+    </div>
+                </div>
+    <!-- Embedded JavaScript System -->
+  <script type="module">
+    import { supabase, ADMIN_EMAIL } from './js/config.js';
+
+    let allProviders = [];
+    let allServices = [];
+    let allUsers = [];
+    let selectedEditUserId = null;
+
+    async function initAdmin() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.email !== ADMIN_EMAIL) {
+        alert("Admin သီးသန့် စာမျက်နှာ ဖြစ်ပါသည်။");
+        window.location.href = "user-dashboard.html";
+        return;
+      }
+
+      await Promise.all([
+        loadDashboardStats(),
+        loadProviders(),
+        loadServices(),
+        loadUsers(),
+        loadDeposits()
+      ]);
     }
+
+    async function loadDashboardStats() {
+      const { data: orders } = await supabase.from('orders').select('charge, created_at');
+      const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+
+      const totalOrdersCount = orders ? orders.length : 0;
+      const totalSales = orders ? orders.reduce((sum, o) => sum + Number(o.charge || 0), 0) : 0;
+
+      document.getElementById('dashTotalOrders').innerText = totalOrdersCount.toLocaleString();
+      document.getElementById('dashTotalUsers').innerText = `${(usersCount || 0).toLocaleString()} Users`;
+      document.getElementById('dashTotalSales').innerText = `${totalSales.toLocaleString()} MMK`;
+
+      if (orders && orders.length > 0) {
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfYesterday = startOfToday - (24 * 60 * 60 * 1000);
+
+        let todayOrders = 0;
+        let yesterdayOrders = 0;
+
+        orders.forEach(o => {
+          const t = new Date(o.created_at).getTime();
+          if (t >= startOfToday) todayOrders++;
+          else if (t >= startOfYesterday && t < startOfToday) yesterdayOrders++;
+        });
+
+        let ratePercent = 0;
+        if (yesterdayOrders === 0) {
+          ratePercent = todayOrders > 0 ? 100 : 0;
+        } else {
+          ratePercent = Math.round(((todayOrders - yesterdayOrders) / yesterdayOrders) * 100);
+        }
+
+        const isPositive = ratePercent >= 0;
+        document.getElementById('dashRateIcon').innerText = isPositive ? "↑" : "↓";
+        document.getElementById('dashOrderRate').innerText = `${isPositive ? '+' : ''}${ratePercent}%`;
+      }
+    }
+
+    window.switchTab = function(tabName) {
+      ['providers', 'services', 'users', 'deposits'].forEach(t => {
+        document.getElementById(`tabSec-${t}`)?.classList.add('hidden');
+        const btn = document.getElementById(`tabBtn-${t}`);
+        if (btn) {
+          btn.className = "admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700";
+        }
+      });
+
+      document.getElementById(`tabSec-${tabName}`)?.classList.remove('hidden');
+      const activeBtn = document.getElementById(`tabBtn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.className = "admin-tab active px-4 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-bold whitespace-nowrap shadow-md shadow-indigo-600/30";
+      }
+    };
+
+    async function loadProviders() {
+      const { data } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
+      allProviders = data || [];
+
+      const select = document.getElementById('serviceProviderSelect');
+      if (select) {
+        select.innerHTML = '<option value="">-- Provider တစ်ခုရွေးပါ --</option>';
+        allProviders.forEach(p => {
+          select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+        });
+      }
+
+      const container = document.getElementById('providersContainer');
+      if (allProviders.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ချိတ်ဆက်ထားသော Provider မရှိသေးပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      allProviders.forEach(p => {
+        const item = document.createElement('div');
+        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between";
+        item.innerHTML = `
+          <div class="overflow-hidden pr-2">
+            <p class="text-xs font-bold text-white">${p.name}</p>
+            <p class="text-[10px] text-slate-400 truncate">${p.api_url}</p>
+            <p class="text-[9px] text-slate-500 font-mono">Key: ••••••••${p.api_key.slice(-4)}</p>
+          </div>
+          <button onclick="deleteProvider('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-bold hover:bg-rose-500/20 transition">
+            Delete
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('addProviderForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('provName').value.trim();
+      const api_url = document.getElementById('provUrl').value.trim();
+      const api_key = document.getElementById('provKey').value.trim();
+
+      const btn = document.getElementById('saveProviderBtn');
+      btn.disabled = true;
+      btn.innerText = "သိမ်းဆည်းနေပါသည်...";
+
+      const { error } = await supabase.from('providers').insert([{ name, api_url, api_key }]);
+      btn.disabled = false;
+      btn.innerText = "Provider သိမ်းဆည်းမည်";
+
+      if (error) return alert("Provider ထည့်ရာတွင် အမှားဖြစ်သည်: " + error.message);
+
+      document.getElementById('addProviderForm').reset();
+      await loadProviders();
+      alert("Provider ချိတ်ဆက်မှု အောင်မြင်ပါသည်!");
+    });
+
+    window.deleteProvider = async function(id) {
+      if (!confirm("ဤ Provider ကို ဖျက်ရန် သေချာပါသလား?")) return;
+      await supabase.from('providers').delete().eq('id', id);
+      await loadProviders();
+    };
+
+    document.getElementById('serviceProviderSelect')?.addEventListener('change', (e) => {
+      const selected = allProviders.find(p => p.id === e.target.value);
+      const label = document.getElementById('providerServiceIdLabel');
+      if (selected) {
+        label.innerText = `[${selected.name}] Service ID`;
+      } else {
+        label.innerText = "Provider Service ID";
+      }
+    });
+        // Services Management
+    async function loadServices() {
+      const { data } = await supabase.from('services').select('*, providers(name)').order('created_at', { ascending: false });
+      allServices = data || [];
+
+      const container = document.getElementById('servicesContainer');
+      if (allServices.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Service များ မရှိသေးပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      allServices.forEach(s => {
+        const item = document.createElement('div');
+        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 space-y-2";
+        item.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[9px] px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
+                ${s.platform}
+              </span>
+              <span class="text-[9px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 font-semibold border border-slate-700 ml-1">
+                ${s.providers?.name || 'No Provider'} ID: ${s.provider_service_id}
+              </span>
+              <p class="text-xs font-bold text-white mt-1.5">${s.name}</p>
+            </div>
+            <button onclick="deleteService('${s.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold ml-2">ဖျက်မည်</button>
+          </div>
+          <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+            <span class="text-emerald-400 font-bold">${Number(s.rate).toLocaleString()} MMK</span>
+            <span>Min: ${s.min_qty} - Max: ${s.max_qty}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('addServiceForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const provider_id = document.getElementById('serviceProviderSelect').value;
+      const provider_service_id = parseInt(document.getElementById('servProviderServiceId').value);
+      const platform = document.getElementById('servPlatform').value;
+      const category = document.getElementById('servCategory').value.trim();
+      const name = document.getElementById('servName').value.trim();
+      const rate = parseFloat(document.getElementById('servRate').value);
+      const min_qty = parseInt(document.getElementById('servMin').value);
+      const max_qty = parseInt(document.getElementById('servMax').value);
+      const time = document.getElementById('servTime').value.trim();
+      const note = document.getElementById('servNote').value.trim();
+
+      const btn = document.getElementById('saveServiceBtn');
+      btn.disabled = true;
+      btn.innerText = "သိမ်းဆည်းနေပါသည်...";
+
+      const { error } = await supabase.from('services').insert([{
+        provider_id, provider_service_id, platform, category, name, rate, min_qty, max_qty, time, note
+      }]);
+
+      btn.disabled = false;
+      btn.innerText = "Service အသစ်ထည့်မည်";
+
+      if (error) return alert("Service ထည့်ရာတွင် အမှားဖြစ်သည်: " + error.message);
+
+      document.getElementById('addServiceForm').reset();
+      await loadServices();
+      alert("Service အသစ် ထည့်သွင်းပြီးပါပြီ!");
+    });
+
+    window.deleteService = async function(id) {
+      if (!confirm("ဤ Service ကို ဖျက်ရန် သေချာပါသလား?")) return;
+      await supabase.from('services').delete().eq('id', id);
+      await loadServices();
+    };
+
+    // Users Management & Balance Modification
+    async function loadUsers() {
+      const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+      allUsers = data || [];
+      document.getElementById('usersCountBadge').innerText = `${allUsers.length} Users`;
+      renderUsersList(allUsers);
+    }
+
+    function renderUsersList(users) {
+      const container = document.getElementById('usersListContainer');
+      if (users.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">User ရှာမတွေ့ပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      users.forEach(u => {
+        const item = document.createElement('div');
+        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between";
+        item.innerHTML = `
+          <div class="overflow-hidden pr-2">
+            <span class="text-xs font-bold text-white">${u.username || 'User'}</span>
+            <p class="text-[11px] text-slate-400 truncate">${u.email || '-'}</p>
+            <p class="text-xs font-black text-emerald-400 mt-1">${Number(u.balance || 0).toLocaleString()} MMK</p>
+          </div>
+          <button onclick="openEditUserModal('${u.id}', '${u.email || u.username}', ${u.balance || 0})" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition flex-shrink-0">
+            Edit Bal ✏️
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('searchUserInput')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtered = allUsers.filter(u => 
+        (u.username || '').toLowerCase().includes(q) || 
+        (u.email || '').toLowerCase().includes(q)
+      );
+      renderUsersList(filtered);
+    });
+
+    window.openEditUserModal = function(id, email, currentBal) {
+      selectedEditUserId = id;
+      document.getElementById('editModalUserEmail').innerText = email;
+      document.getElementById('editModalCurrentBal').innerText = `${Number(currentBal).toLocaleString()} MMK`;
+      document.getElementById('editModalNewBal').value = currentBal;
+      document.getElementById('editUserModal').classList.remove('hidden');
+    };
+
+    window.closeEditUserModal = function() {
+      selectedEditUserId = null;
+      document.getElementById('editUserModal').classList.add('hidden');
+    };
+
+    window.saveUserBalance = async function() {
+      if (!selectedEditUserId) return;
+      const newBal = parseFloat(document.getElementById('editModalNewBal').value);
+      if (isNaN(newBal) || newBal < 0) return alert("ငွေပမာဏ မှန်ကန်စွာ ထည့်ပါ");
+
+      const btn = document.getElementById('saveBalBtn');
+      btn.disabled = true;
+      btn.innerText = "သိမ်းနေသည်...";
+
+      const { error } = await supabase.from('profiles').update({ balance: newBal }).eq('id', selectedEditUserId);
+      btn.disabled = false;
+      btn.innerText = "သိမ်းဆည်းမည်";
+
+      if (error) return alert("Balance ပြင်ရာတွင် အမှားဖြစ်သည်: " + error.message);
+
+      closeEditUserModal();
+      await loadUsers();
+      alert("Balance အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ!");
+    };
+
+    // Topups Management
+    async function loadDeposits() {
+      const { data } = await supabase.from('deposits').select('*, profiles(username, email)').order('created_at', { ascending: false });
+      const deposits = data || [];
+      const pendingCount = deposits.filter(d => d.status === 'pending').length;
+      document.getElementById('pendingDepositsBadge').innerText = `${pendingCount} Pending`;
+
+      const container = document.getElementById('depositsListContainer');
+      if (deposits.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ငွေဖြည့်မှတ်တမ်း မရှိပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      deposits.forEach(d => {
+        const item = document.createElement('div');
+        item.className = "glass p-4 rounded-2xl border border-slate-800 space-y-2.5";
+        let statusColor = d.status === 'approved' ? 'text-emerald-400' : (d.status === 'rejected' ? 'text-rose-400' : 'text-amber-400');
+        
+        item.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-xs font-bold text-white">${d.profiles?.username || d.sender_name || 'Member'}</p>
+              <p class="text-[10px] text-slate-400 font-mono">${d.profiles?.email || '-'}</p>
+              <p class="text-[10px] text-indigo-400 mt-0.5">Method: ${d.payment_method || 'KBZ/Wave'}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-sm font-black text-emerald-400">${Number(d.amount).toLocaleString()} MMK</span>
+              <p class="text-[10px] font-bold uppercase mt-0.5 ${statusColor}">${d.status}</p>
+            </div>
+          </div>
+          ${d.slip_url ? `
+            <div class="pt-1">
+              <a href="${d.slip_url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-blue-400 hover:underline">
+                <span>🖼️</span> ပြေစာ Slip ကြည့်ရန်
+              </a>
+            </div>
+          ` : ''}
+          ${d.status === 'pending' ? `
+            <div class="flex gap-2 pt-2 border-t border-slate-800/80">
+              <button onclick="approveDeposit('${d.id}', '${d.user_id}',${d.amount})" class="flex-1 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">Approve</button>
+              <button onclick="rejectDeposit('${d.id}')" class="flex-1 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition">Reject</button>
+            </div>
+          ` : ''}
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    window.approveDeposit = async function(depositId, userId, amount) {
+      if (!confirm("ဤ Topup ကို အတည်ပြု၍ Balance ထည့်ပေးမည် သေချာပါသလား?")) return;
+      const { data: userProfile } = await supabase.from('profiles').select('balance').eq('id', userId).single();
+      const newBal = Number(userProfile?.balance || 0) + Number(amount);
+
+      await supabase.from('profiles').update({ balance: newBal }).eq('id', userId);
+      await supabase.from('deposits').update({ status: 'approved' }).eq('id', depositId);
+      await Promise.all([loadDeposits(), loadUsers(), loadDashboardStats()]);
+      alert("ငွေဖြည့်သွင်းမှု အတည်ပြုပြီးပါပြီ!");
+    };
+
+    window.rejectDeposit = async function(depositId) {
+      if (!confirm("ဤ Topup ကို ပယ်ဖျက်မည် သေချာပါသလား?")) return;
+      await supabase.from('deposits').update({ status: 'rejected' }).eq('id', depositId);
+      await loadDeposits();
+    };
+
+    initAdmin();
   </script>
 </body>
-                </html>
-  
+</html>
