@@ -3,287 +3,293 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - SMM Boost</title>
+  <title>SMM Boost Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .glow-card {
+      background: #111411;
+      border: 1px solid #10b98133;
+      box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.15);
     }
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .glow-text {
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
-    @keyframes waveMove {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .animate-wave {
-      animation: waveMove 10s linear infinite;
-    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-16 overflow-x-hidden">
+<body class="bg-[#0a0c0a] text-slate-100 min-h-screen pb-16 overflow-x-hidden">
 
-  <!-- Admin Navbar -->
-  <header class="glass sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center border-b border-slate-800">
-    <div class="flex items-center gap-2.5">
-      <a href="user-dashboard.html" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition">
+  <!-- Header Section -->
+  <header class="sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center bg-[#0a0c0a]/90 backdrop-blur-md border-b border-emerald-950/80">
+    <div class="flex items-center gap-2">
+      <a href="user-dashboard.html" class="w-8 h-8 rounded-xl bg-neutral-900 border border-emerald-900/50 flex items-center justify-center text-emerald-400 hover:text-white transition">
         ←
       </a>
-      <div>
-        <h1 class="text-base font-black text-amber-400 tracking-wider">ADMIN PANEL</h1>
-        <p class="text-[10px] text-slate-400">System Overview & Management</p>
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400 text-lg">👤🛡️</span>
+        <h1 class="text-base sm:text-lg font-black text-emerald-400 tracking-wide glow-text">SMM Boost Admin Dashboard</h1>
       </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <span class="px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-        🛡️ Owner
-      </span>
     </div>
   </header>
 
-  <main class="max-w-xl mx-auto p-4 space-y-5">
+  <main class="max-w-xl mx-auto p-4 space-y-4">
 
-    <!-- 1. Total Orders Large Banner with Dynamic Wave & Daily % Rate -->
-    <div class="relative overflow-hidden glass rounded-3xl border border-indigo-500/30 p-5 shadow-2xl">
-      <div class="relative z-10 flex justify-between items-start">
-        <div>
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total All Orders</span>
-          <h2 class="text-4xl font-black text-white mt-1 tracking-tight" id="dashTotalOrders">0</h2>
-        </div>
-        <div class="flex flex-col items-end">
-          <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-            <span id="dashRateIcon">↑</span>
-            <span id="dashOrderRate">+0%</span>
-          </div>
-          <span class="text-[10px] text-slate-400 mt-1">Today vs Yesterday</span>
-        </div>
+    <!-- Top 3 Metric Cards (Exact Match to Picture) -->
+    <div class="grid grid-cols-3 gap-2.5">
+      <div class="glow-card rounded-2xl p-3 text-center border border-emerald-500/30">
+        <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">TOTAL WEBSITE ORDERS</p>
+        <h3 class="text-lg font-black text-emerald-400 mt-1 glow-text" id="dashTotalOrders">0</h3>
       </div>
-
-      <!-- Quick Metrics Grid -->
-      <div class="relative z-10 grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-slate-800/80">
-        <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-          <span class="text-[10px] text-slate-400">Total Members</span>
-          <p class="text-sm font-black text-indigo-400 mt-0.5" id="dashTotalUsers">0 Users</p>
-        </div>
-        <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-          <span class="text-[10px] text-slate-400">Total Platform Sales</span>
-          <p class="text-sm font-black text-emerald-400 mt-0.5" id="dashTotalSales">0 MMK</p>
-        </div>
+      <div class="glow-card rounded-2xl p-3 text-center border border-emerald-500/30">
+        <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">TOTAL SALES REVENUE</p>
+        <h3 class="text-xs sm:text-sm font-black text-emerald-400 mt-2 truncate glow-text" id="dashTotalSales">0 MMK</h3>
       </div>
-
-      <!-- SVG Animated Waves Background -->
-      <div class="absolute -bottom-1 left-0 right-0 h-16 pointer-events-none opacity-40 overflow-hidden">
-        <div class="w-[200%] h-full flex animate-wave">
-          <svg class="w-1/2 h-full fill-indigo-600/30" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z"></path>
-          </svg>
-          <svg class="w-1/2 h-full fill-indigo-600/30" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M0,0 C150,90 350,-40 500,45 C650,130 900,10 1200,40 L1200,120 L0,120 Z"></path>
-          </svg>
+      <div class="glow-card rounded-2xl p-3 text-center border border-emerald-500/30">
+        <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">SERVER STATUS</p>
+        <div class="inline-flex items-center gap-1.5 mt-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <h3 class="text-xs font-black text-emerald-400 uppercase tracking-wider">ONLINE</h3>
         </div>
       </div>
     </div>
 
-    <!-- Navigation Tabs for Admin Sections -->
+    <!-- Total Orders Scale Trend (Wave Curve Line Chart) -->
+    <div class="glow-card rounded-3xl p-4 sm:p-5 border border-emerald-500/30 space-y-3">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xs font-bold text-white flex items-center gap-2">
+          <span class="text-emerald-400">📈</span> Total Orders Scale Trend
+        </h4>
+        <span class="text-[10px] text-emerald-400 font-mono" id="trendRateDisplay">+0% Growth</span>
+      </div>
+      <div class="w-full h-44 relative">
+        <canvas id="ordersScaleChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
-      <button onclick="switchTab('providers')" id="tabBtn-providers" class="admin-tab active px-4 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-bold whitespace-nowrap shadow-md shadow-indigo-600/30">
-        🔌 Providers
-      </button>
-      <button onclick="switchTab('services')" id="tabBtn-services" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
+      <button onclick="switchTab('services')" id="tabBtn-services" class="admin-tab active px-3.5 py-1.5 rounded-xl bg-emerald-600 text-black text-xs font-black whitespace-nowrap">
         📦 Services
       </button>
-      <button onclick="switchTab('users')" id="tabBtn-users" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
+      <button onclick="switchTab('providers')" id="tabBtn-providers" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
+        🔌 Providers
+      </button>
+      <button onclick="switchTab('users')" id="tabBtn-users" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
         👥 Users
       </button>
-      <button onclick="switchTab('deposits')" id="tabBtn-deposits" class="admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700">
-        💳 Topups
+      <button onclick="switchTab('payments')" id="tabBtn-payments" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
+        💳 Payments
+      </button>
+      <button onclick="switchTab('deposits')" id="tabBtn-deposits" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
+        📥 Topups
       </button>
     </div>
+        <!-- 1. SECTION: Services Management & List -->
+    <section id="tabSec-services" class="space-y-4">
+      <div class="glow-card p-5 rounded-3xl border border-emerald-500/30 space-y-3.5">
+        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Service အသစ်ထည့်သွင်းရန်</h3>
+        <form id="addServiceForm" class="space-y-3">
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Provider ရွေးချယ်ပါ</label>
+            <select id="serviceProviderSelect" required class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+              <option value="">-- Provider တစ်ခုရွေးပါ --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1" id="providerServiceIdLabel">Provider Service ID</label>
+            <input type="number" id="servProviderServiceId" required placeholder="ရွေးထားသော Provider မှ Service ID (ဥပမာ - 1205)" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Platform</label>
+              <select id="servPlatform" required class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                <option value="TikTok">TikTok</option>
+                <option value="Telegram">Telegram</option>
+                <option value="YouTube">YouTube</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Instagram">Instagram</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Category</label>
+              <input type="text" id="servCategory" required placeholder="Category အမည်" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Service Name</label>
+            <input type="text" id="servName" required placeholder="Service အမည်အပြည့်အစုံ" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[9px] text-slate-400 mb-1">Rate (1K MMK)</label>
+              <input type="number" id="servRate" required placeholder="3500" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-400 mb-1">Min Qty</label>
+              <input type="number" id="servMin" required placeholder="100" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[9px] text-slate-400 mb-1">Max Qty</label>
+              <input type="number" id="servMax" required placeholder="100000" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-2.5 py-2 text-xs text-slate-200 focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">ပျမ်းမျှကြာချိန် (Time)</label>
+            <input type="text" id="servTime" placeholder="ဥပမာ - 10-30 မိနစ်" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Notes</label>
+            <textarea id="servNote" rows="2" placeholder="ဖတ်ရန်မှတ်ချက်..." class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl p-2.5 text-xs text-slate-200 focus:outline-none"></textarea>
+          </div>
+          <button type="submit" id="saveServiceBtn" class="w-full py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 font-black text-xs text-black transition shadow-lg shadow-emerald-500/20">
+            Service သိမ်းဆည်းမည်
+          </button>
+        </form>
+      </div>
+      <div class="space-y-2">
+        <p class="text-xs font-bold text-slate-400 px-1">လက်ရှိ Service များ</p>
+        <div id="servicesContainer" class="space-y-2"></div>
+      </div>
+    </section>
 
-    <!-- 2. SECTION: Providers Management (Unlimited Providers) -->
-    <section id="tabSec-providers" class="space-y-4">
-      <div class="glass p-5 rounded-3xl border border-slate-800 space-y-4">
-        <h3 class="text-sm font-bold text-indigo-300 flex items-center justify-between">
-          <span>Provider အသစ်ချိတ်ဆက်ရန်</span>
-          <span class="text-[10px] text-slate-400 font-normal">API & URL</span>
-        </h3>
-        
+    <!-- 2. SECTION: Providers Management -->
+    <section id="tabSec-providers" class="hidden space-y-4">
+      <div class="glow-card p-5 rounded-3xl border border-emerald-500/30 space-y-3">
+        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Provider အသစ်ချိတ်ဆက်ရန်</h3>
         <form id="addProviderForm" class="space-y-3">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Provider Name (အမည်)</label>
-            <input type="text" id="provName" required placeholder="ဥပမာ - JapSMM, MainProvider" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <label class="block text-[10px] text-slate-400 mb-1">Provider Name</label>
+            <input type="text" id="provName" required placeholder="ဥပမာ - JapSMM" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">API URL (V2 URL)</label>
-            <input type="url" id="provUrl" required placeholder="https://example.com/api/v2" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <label class="block text-[10px] text-slate-400 mb-1">API URL</label>
+            <input type="url" id="provUrl" required placeholder="https://example.com/api/v2" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">API Key</label>
-            <input type="text" id="provKey" required placeholder="API secret key..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+            <label class="block text-[10px] text-slate-400 mb-1">API Key</label>
+            <input type="text" id="provKey" required placeholder="API Key..." class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none font-mono">
           </div>
-          <button type="submit" id="saveProviderBtn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition shadow-lg shadow-indigo-600/30">
+          <button type="submit" id="saveProviderBtn" class="w-full py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 font-black text-xs text-black transition">
             Provider သိမ်းဆည်းမည်
           </button>
         </form>
       </div>
-
-      <!-- Connected Providers List -->
-      <div class="space-y-2">
-        <p class="text-xs font-bold text-slate-400 px-1">ချိတ်ဆက်ထားသော Provider များ</p>
-        <div id="providersContainer" class="space-y-2">
-          <p class="text-xs text-slate-500 text-center py-4">Provider များ ရယူနေပါသည်...</p>
-        </div>
-      </div>
+      <div id="providersContainer" class="space-y-2"></div>
     </section>
-        <!-- 3. SECTION: Services Management (Dynamic Provider ID Link) -->
-    <section id="tabSec-services" class="hidden space-y-4">
-      <div class="glass p-5 rounded-3xl border border-slate-800 space-y-4">
-        <h3 class="text-sm font-bold text-indigo-300">Service အသစ်ထည့်သွင်းရန်</h3>
-        <form id="addServiceForm" class="space-y-3">
-          
-          <!-- Select Connected Provider -->
+
+    <!-- 3. SECTION: Users Management -->
+    <section id="tabSec-users" class="hidden space-y-3">
+      <div class="flex justify-between items-center px-1">
+        <p class="text-xs font-bold text-slate-300">Users စာရင်း</p>
+        <span class="text-[11px] text-emerald-400 font-bold" id="usersCountBadge">0 Users</span>
+      </div>
+      <input type="text" id="searchUserInput" placeholder="Username သို့မဟုတ် Email ဖြင့်ရှာရန်..." class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
+      <div id="usersListContainer" class="space-y-2"></div>
+    </section>
+
+    <!-- 4. SECTION: Payments Management (Add/Manage Payment Methods) -->
+    <section id="tabSec-payments" class="hidden space-y-4">
+      <div class="glow-card p-5 rounded-3xl border border-emerald-500/30 space-y-3">
+        <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Payment Method အသစ်ထည့်ရန်</h3>
+        <form id="addPaymentForm" class="space-y-3">
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Provider ရွေးချယ်ပါ</label>
-            <select id="serviceProviderSelect" required class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="">-- Provider တစ်ခုရွေးပါ --</option>
-            </select>
+            <label class="block text-[10px] text-slate-400 mb-1">Payment Type (အမျိုးအစား)</label>
+            <input type="text" id="payMethodName" required placeholder="ဥပမာ - KBZPay, WavePay, CBPay" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
           </div>
-
-          <!-- Provider Service ID (Dynamic according to chosen provider) -->
           <div>
-            <label class="block text-xs text-slate-400 mb-1" id="providerServiceIdLabel">Provider Service ID</label>
-            <input type="number" id="servProviderServiceId" required placeholder="ရွေးချယ်ထားသော Provider မှ Service ID (ဥပမာ - 1205)" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-mono">
+            <label class="block text-[10px] text-slate-400 mb-1">Account Name (အကောင့်ပိုင်ရှင်အမည်)</label>
+            <input type="text" id="payAccName" required placeholder="ဥပမာ - U Mya" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none">
           </div>
-
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Platform</label>
-            <select id="servPlatform" required class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="TikTok">TikTok</option>
-              <option value="Telegram">Telegram</option>
-              <option value="YouTube">YouTube</option>
-              <option value="Facebook">Facebook</option>
-              <option value="Instagram">Instagram</option>
-            </select>
+            <label class="block text-[10px] text-slate-400 mb-1">Account Number / Phone</label>
+            <input type="text" id="payAccNumber" required placeholder="09xxxxxxxxx" class="w-full bg-neutral-900 border border-emerald-950 rounded-2xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none font-mono">
           </div>
-
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Category (အမျိုးအစား)</label>
-            <input type="text" id="servCategory" required placeholder="ဥပမာ - TikTok Followers [High Quality]" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-          </div>
-
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Service Name (အမည်)</label>
-            <input type="text" id="servName" required placeholder="ဥပမာ - ⚡ TikTok Followers | Instant" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-          </div>
-
-          <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Rate (1K MMK)</label>
-              <input type="number" id="servRate" required placeholder="3500" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Min Qty</label>
-              <input type="number" id="servMin" required placeholder="100" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Max Qty</label>
-              <input type="number" id="servMax" required placeholder="100000" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">ပျမ်းမျှကြာချိန် (Average Time)</label>
-            <input type="text" id="servTime" placeholder="ဥပမာ - 10-30 မိနစ်" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-2 text-xs text-slate-200 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Notes (ဖတ်ရန်မှတ်ချက်)</label>
-            <textarea id="servNote" rows="2" placeholder="လင့်ခ်မှန်ကန်စွာ ထည့်သွင်းပါ..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-3 text-xs text-slate-200 focus:outline-none"></textarea>
-          </div>
-
-          <button type="submit" id="saveServiceBtn" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white transition shadow-lg shadow-indigo-600/30">
-            Service အသစ်ထည့်မည်
+          <button type="submit" id="savePaymentBtn" class="w-full py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 font-black text-xs text-black transition">
+            Payment သိမ်းဆည်းမည်
           </button>
         </form>
       </div>
-
-      <!-- Services List -->
-      <div class="space-y-2">
-        <p class="text-xs font-bold text-slate-400 px-1">လက်ရှိ Service များ</p>
-        <div id="servicesContainer" class="space-y-2">
-          <p class="text-xs text-slate-500 text-center py-4">Services များ ရယူနေပါသည်...</p>
-        </div>
-      </div>
+      <div id="paymentsContainer" class="space-y-2"></div>
     </section>
 
-    <!-- 4. SECTION: Users Management (Username, Email, Balance Edit) -->
-    <section id="tabSec-users" class="space-y-4 hidden">
-      <div class="flex items-center justify-between px-1">
-        <p class="text-xs font-bold text-slate-300">Users စာရင်းနှင့် ငွေလက်ကျန် ပြင်ဆင်ခြင်း</p>
-        <span class="text-[11px] text-indigo-400 font-bold" id="usersCountBadge">0 Users</span>
+    <!-- 5. SECTION: Topups Management -->
+    <section id="tabSec-deposits" class="hidden space-y-3">
+      <div class="flex justify-between items-center px-1">
+        <p class="text-xs font-bold text-slate-300">Topup တောင်းဆိုမှုများ</p>
+        <span class="text-[11px] text-emerald-400 font-bold" id="pendingDepositsBadge">0 Pending</span>
       </div>
-
-      <div class="relative">
-        <input type="text" id="searchUserInput" placeholder="Username သို့မဟုတ် Email ဖြင့်ရှာရန်..." class="w-full bg-slate-900/90 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔍</span>
-      </div>
-
-      <div id="usersListContainer" class="space-y-2.5">
-        <p class="text-xs text-slate-500 text-center py-6">Users များ ရယူနေပါသည်...</p>
-      </div>
-    </section>
-
-    <!-- 5. SECTION: Topups (Deposits) Management -->
-    <section id="tabSec-deposits" class="space-y-4 hidden">
-      <div class="flex items-center justify-between px-1">
-        <p class="text-xs font-bold text-slate-300">ငွေဖြည့်တောင်းဆိုမှုများ (Topups)</p>
-        <span class="text-[11px] text-amber-400 font-bold" id="pendingDepositsBadge">0 Pending</span>
-      </div>
-
-      <div id="depositsListContainer" class="space-y-3">
-        <p class="text-xs text-slate-500 text-center py-6">Topup တောင်းဆိုမှုများ ရယူနေပါသည်...</p>
-      </div>
+      <div id="depositsListContainer" class="space-y-2.5"></div>
     </section>
 
   </main>
 
+  <!-- Edit Service Modal -->
+  <div id="editServiceModal" class="hidden fixed inset-0 z-[120] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="glow-card rounded-3xl p-5 max-w-sm w-full space-y-3 border border-emerald-500/40 my-auto">
+      <h3 class="text-sm font-bold text-emerald-400">Service အချက်အလက် ပြင်ဆင်ရန်</h3>
+      <form id="editServiceForm" class="space-y-2.5">
+        <input type="hidden" id="editServId">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Service Name</label>
+          <input type="text" id="editServName" required class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-3 py-1.5 text-xs text-white">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[9px] text-slate-400 mb-0.5">Rate (1K)</label>
+            <input type="number" id="editServRate" required class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-2 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[9px] text-slate-400 mb-0.5">Min Qty</label>
+            <input type="number" id="editServMin" required class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-2 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[9px] text-slate-400 mb-0.5">Max Qty</label>
+            <input type="number" id="editServMax" required class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-2 py-1.5 text-xs text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Time</label>
+          <input type="text" id="editServTime" class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-3 py-1.5 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-0.5">Notes</label>
+          <textarea id="editServNote" rows="2" class="w-full bg-neutral-900 border border-emerald-950 rounded-xl p-2 text-xs text-white"></textarea>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeEditServiceModal()" class="flex-1 py-2 rounded-xl bg-neutral-800 text-white font-bold text-xs">ပယ်ဖျက်မည်</button>
+          <button type="submit" class="flex-1 py-2 rounded-xl bg-emerald-500 text-black font-black text-xs">Update ပြင်မည်</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Edit User Balance Modal -->
-  <div id="editUserModal" class="hidden fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+  <div id="editUserModal" class="hidden fixed inset-0 z-[120] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glow-card rounded-3xl p-5 max-w-xs w-full space-y-3 border border-emerald-500/40">
+      <h3 class="text-sm font-bold text-emerald-400">User Balance ပြင်ရန်</h3>
+      <p class="text-[11px] text-slate-400 truncate" id="editModalUserEmail">-</p>
       <div>
-        <h3 class="text-base font-bold text-white">User Balance ပြင်ဆင်ရန်</h3>
-        <p class="text-xs text-indigo-400 mt-0.5 truncate" id="editModalUserEmail">-</p>
+        <label class="block text-[10px] text-slate-500 mb-1 uppercase">လက်ရှိငွေ: <span id="editModalCurrentBal" class="text-emerald-400 font-bold">0 MMK</span></label>
+        <input type="number" id="editModalNewBal" class="w-full bg-neutral-900 border border-emerald-950 rounded-xl px-3 py-2 text-sm text-white">
       </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-[10px] text-slate-400 mb-1 uppercase">လက်ရှိ လက်ကျန်ငွေ</label>
-          <p class="text-lg font-black text-emerald-400" id="editModalCurrentBal">0 MMK</p>
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">လက်ကျန်ငွေ အသစ် သတ်မှတ်ရန် (MMK)</label>
-          <input type="number" id="editModalNewBal" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-        </div>
-      </div>
-
-      <div class="flex gap-2.5 pt-2">
-        <button onclick="closeEditUserModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">ပယ်ဖျက်မည်</button>
-        <button onclick="saveUserBalance()" id="saveBalBtn" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30">သိမ်းဆည်းမည်</button>
+      <div class="flex gap-2 pt-1">
+        <button onclick="closeEditUserModal()" class="flex-1 py-2 rounded-xl bg-neutral-800 text-white font-bold text-xs">ပယ်ဖျက်မည်</button>
+        <button onclick="saveUserBalance()" id="saveBalBtn" class="flex-1 py-2 rounded-xl bg-emerald-500 text-black font-black text-xs">သိမ်းဆည်းမည်</button>
       </div>
     </div>
-                </div>
-    <!-- Embedded JavaScript System -->
+  </div>
+    <!-- JavaScript System & Scale Trend Chart -->
   <script type="module">
     import { supabase, ADMIN_EMAIL } from './js/config.js';
 
     let allProviders = [];
     let allServices = [];
     let allUsers = [];
+    let allPayments = [];
     let selectedEditUserId = null;
+    let ordersChartInstance = null;
 
     async function initAdmin() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -298,64 +304,101 @@
         loadProviders(),
         loadServices(),
         loadUsers(),
+        loadPayments(),
         loadDeposits()
       ]);
     }
 
+    // 1. Metrics & Scale Trend Curve Chart (Neon Glow Green)
     async function loadDashboardStats() {
       const { data: orders } = await supabase.from('orders').select('charge, created_at');
-      const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-
       const totalOrdersCount = orders ? orders.length : 0;
       const totalSales = orders ? orders.reduce((sum, o) => sum + Number(o.charge || 0), 0) : 0;
 
       document.getElementById('dashTotalOrders').innerText = totalOrdersCount.toLocaleString();
-      document.getElementById('dashTotalUsers').innerText = `${(usersCount || 0).toLocaleString()} Users`;
       document.getElementById('dashTotalSales').innerText = `${totalSales.toLocaleString()} MMK`;
 
-      if (orders && orders.length > 0) {
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        const startOfYesterday = startOfToday - (24 * 60 * 60 * 1000);
-
-        let todayOrders = 0;
-        let yesterdayOrders = 0;
-
-        orders.forEach(o => {
-          const t = new Date(o.created_at).getTime();
-          if (t >= startOfToday) todayOrders++;
-          else if (t >= startOfYesterday && t < startOfToday) yesterdayOrders++;
-        });
-
-        let ratePercent = 0;
-        if (yesterdayOrders === 0) {
-          ratePercent = todayOrders > 0 ? 100 : 0;
-        } else {
-          ratePercent = Math.round(((todayOrders - yesterdayOrders) / yesterdayOrders) * 100);
-        }
-
-        const isPositive = ratePercent >= 0;
-        document.getElementById('dashRateIcon').innerText = isPositive ? "↑" : "↓";
-        document.getElementById('dashOrderRate').innerText = `${isPositive ? '+' : ''}${ratePercent}%`;
-      }
+      renderScaleTrendChart(orders || []);
     }
 
+    function renderScaleTrendChart(orders) {
+      const days = 7;
+      const labels = [];
+      const dataPoints = [];
+      const now = new Date();
+
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+        const start = d.getTime();
+        const end = start + (24 * 60 * 60 * 1000);
+        const count = orders.filter(o => {
+          const t = new Date(o.created_at).getTime();
+          return t >= start && t < end;
+        }).length;
+        dataPoints.push(count);
+      }
+
+      const todayVal = dataPoints[days - 1] || 0;
+      const yesterdayVal = dataPoints[days - 2] || 0;
+      let diffRate = 0;
+      if (yesterdayVal === 0) diffRate = todayVal > 0 ? 100 : 0;
+      else diffRate = Math.round(((todayVal - yesterdayVal) / yesterdayVal) * 100);
+
+      document.getElementById('trendRateDisplay').innerText = `${diffRate >= 0 ? '+' : ''}${diffRate}% Growth`;
+
+      const ctx = document.getElementById('ordersScaleChart')?.getContext('2d');
+      if (!ctx) return;
+      if (ordersChartInstance) ordersChartInstance.destroy();
+
+      ordersChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataPoints,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.45,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 1.5,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#64748b', font: { size: 10 }, precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // 2. Tab Navigation
     window.switchTab = function(tabName) {
-      ['providers', 'services', 'users', 'deposits'].forEach(t => {
+      ['services', 'providers', 'users', 'payments', 'deposits'].forEach(t => {
         document.getElementById(`tabSec-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tabBtn-${t}`);
         if (btn) {
-          btn.className = "admin-tab px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-400 text-xs font-bold whitespace-nowrap hover:border-slate-700";
+          btn.className = "admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap";
         }
       });
 
       document.getElementById(`tabSec-${tabName}`)?.classList.remove('hidden');
       const activeBtn = document.getElementById(`tabBtn-${tabName}`);
       if (activeBtn) {
-        activeBtn.className = "admin-tab active px-4 py-2 rounded-2xl bg-indigo-600 text-white text-xs font-bold whitespace-nowrap shadow-md shadow-indigo-600/30";
+        activeBtn.className = "admin-tab active px-3.5 py-1.5 rounded-xl bg-emerald-600 text-black text-xs font-black whitespace-nowrap";
       }
     };
 
+    // 3. Providers Management
     async function loadProviders() {
       const { data } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
       allProviders = data || [];
@@ -370,23 +413,21 @@
 
       const container = document.getElementById('providersContainer');
       if (allProviders.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ချိတ်ဆက်ထားသော Provider မရှိသေးပါ။</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Provider မရှိသေးပါ။</p>';
         return;
       }
 
       container.innerHTML = '';
       allProviders.forEach(p => {
         const item = document.createElement('div');
-        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between";
+        item.className = "glow-card p-3 rounded-2xl flex items-center justify-between";
         item.innerHTML = `
           <div class="overflow-hidden pr-2">
             <p class="text-xs font-bold text-white">${p.name}</p>
             <p class="text-[10px] text-slate-400 truncate">${p.api_url}</p>
-            <p class="text-[9px] text-slate-500 font-mono">Key: ••••••••${p.api_key.slice(-4)}</p>
+            <p class="text-[9px] text-slate-500 font-mono">Key: ••••••${p.api_key.slice(-4)}</p>
           </div>
-          <button onclick="deleteProvider('${p.id}')" class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-bold hover:bg-rose-500/20 transition">
-            Delete
-          </button>
+          <button onclick="deleteProvider('${p.id}')" class="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-bold">Delete</button>
         `;
         container.appendChild(item);
       });
@@ -400,17 +441,16 @@
 
       const btn = document.getElementById('saveProviderBtn');
       btn.disabled = true;
-      btn.innerText = "သိမ်းဆည်းနေပါသည်...";
+      btn.innerText = "သိမ်းနေသည်...";
 
       const { error } = await supabase.from('providers').insert([{ name, api_url, api_key }]);
       btn.disabled = false;
       btn.innerText = "Provider သိမ်းဆည်းမည်";
 
-      if (error) return alert("Provider ထည့်ရာတွင် အမှားဖြစ်သည်: " + error.message);
-
+      if (error) return alert("Error: " + error.message);
       document.getElementById('addProviderForm').reset();
       await loadProviders();
-      alert("Provider ချိတ်ဆက်မှု အောင်မြင်ပါသည်!");
+      alert("Provider အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!");
     });
 
     window.deleteProvider = async function(id) {
@@ -422,41 +462,41 @@
     document.getElementById('serviceProviderSelect')?.addEventListener('change', (e) => {
       const selected = allProviders.find(p => p.id === e.target.value);
       const label = document.getElementById('providerServiceIdLabel');
-      if (selected) {
-        label.innerText = `[${selected.name}] Service ID`;
-      } else {
-        label.innerText = "Provider Service ID";
-      }
+      if (selected) label.innerText = `[${selected.name}] Service ID`;
+      else label.innerText = "Provider Service ID";
     });
-        // Services Management
+        // 4. Services Management & Edit System
     async function loadServices() {
       const { data } = await supabase.from('services').select('*, providers(name)').order('created_at', { ascending: false });
       allServices = data || [];
 
       const container = document.getElementById('servicesContainer');
       if (allServices.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Service များ မရှိသေးပါ။</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Service မရှိသေးပါ။</p>';
         return;
       }
 
       container.innerHTML = '';
       allServices.forEach(s => {
         const item = document.createElement('div');
-        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 space-y-2";
+        item.className = "glow-card p-3 rounded-2xl space-y-2";
         item.innerHTML = `
           <div class="flex items-start justify-between">
-            <div>
-              <span class="text-[9px] px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/30">
+            <div class="overflow-hidden pr-2">
+              <span class="text-[9px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
                 ${s.platform}
               </span>
-              <span class="text-[9px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 font-semibold border border-slate-700 ml-1">
-                ${s.providers?.name || 'No Provider'} ID: ${s.provider_service_id}
+              <span class="text-[9px] px-2 py-0.5 rounded-md bg-neutral-900 text-slate-400 font-semibold border border-emerald-950 ml-1">
+                ${s.providers?.name || 'No Prov'} ID: ${s.provider_service_id}
               </span>
-              <p class="text-xs font-bold text-white mt-1.5">${s.name}</p>
+              <p class="text-xs font-bold text-white mt-1 leading-snug">${s.name}</p>
             </div>
-            <button onclick="deleteService('${s.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold ml-2">ဖျက်မည်</button>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="openEditServiceModal('${s.id}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-bold">ပြင်မည် ✏️</button>
+              <button onclick="deleteService('${s.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold">ဖျက်မည်</button>
+            </div>
           </div>
-          <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1 border-t border-slate-800/60">
+          <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-emerald-950/60">
             <span class="text-emerald-400 font-bold">${Number(s.rate).toLocaleString()} MMK</span>
             <span>Min: ${s.min_qty} - Max: ${s.max_qty}</span>
           </div>
@@ -480,20 +520,19 @@
 
       const btn = document.getElementById('saveServiceBtn');
       btn.disabled = true;
-      btn.innerText = "သိမ်းဆည်းနေပါသည်...";
+      btn.innerText = "သိမ်းနေသည်...";
 
       const { error } = await supabase.from('services').insert([{
         provider_id, provider_service_id, platform, category, name, rate, min_qty, max_qty, time, note
       }]);
 
       btn.disabled = false;
-      btn.innerText = "Service အသစ်ထည့်မည်";
+      btn.innerText = "Service သိမ်းဆည်းမည်";
 
-      if (error) return alert("Service ထည့်ရာတွင် အမှားဖြစ်သည်: " + error.message);
-
+      if (error) return alert("Error: " + error.message);
       document.getElementById('addServiceForm').reset();
       await loadServices();
-      alert("Service အသစ် ထည့်သွင်းပြီးပါပြီ!");
+      alert("Service အောင်မြင်စွာ ထည့်ပြီးပါပြီ!");
     });
 
     window.deleteService = async function(id) {
@@ -502,7 +541,48 @@
       await loadServices();
     };
 
-    // Users Management & Balance Modification
+    // Edit Service Modal Controls
+    window.openEditServiceModal = function(id) {
+      const s = allServices.find(x => x.id === id);
+      if (!s) return;
+
+      document.getElementById('editServId').value = s.id;
+      document.getElementById('editServName').value = s.name;
+      document.getElementById('editServRate').value = s.rate;
+      document.getElementById('editServMin').value = s.min_qty;
+      document.getElementById('editServMax').value = s.max_qty;
+      document.getElementById('editServTime').value = s.time || '';
+      document.getElementById('editServNote').value = s.note || '';
+
+      document.getElementById('editServiceModal').classList.remove('hidden');
+    };
+
+    window.closeEditServiceModal = function() {
+      document.getElementById('editServiceModal').classList.add('hidden');
+    };
+
+    document.getElementById('editServiceForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editServId').value;
+      const name = document.getElementById('editServName').value.trim();
+      const rate = parseFloat(document.getElementById('editServRate').value);
+      const min_qty = parseInt(document.getElementById('editServMin').value);
+      const max_qty = parseInt(document.getElementById('editServMax').value);
+      const time = document.getElementById('editServTime').value.trim();
+      const note = document.getElementById('editServNote').value.trim();
+
+      const { error } = await supabase.from('services').update({
+        name, rate, min_qty, max_qty, time, note
+      }).eq('id', id);
+
+      if (error) return alert("Error: " + error.message);
+
+      closeEditServiceModal();
+      await loadServices();
+      alert("Service အချက်အလက်များ ပြင်ဆင်ပြီးပါပြီ!");
+    });
+
+    // 5. Users Management
     async function loadUsers() {
       const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
       allUsers = data || [];
@@ -513,21 +593,21 @@
     function renderUsersList(users) {
       const container = document.getElementById('usersListContainer');
       if (users.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">User ရှာမတွေ့ပါ။</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">User မရှိပါ။</p>';
         return;
       }
 
       container.innerHTML = '';
       users.forEach(u => {
         const item = document.createElement('div');
-        item.className = "glass p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between";
+        item.className = "glow-card p-3 rounded-2xl flex items-center justify-between";
         item.innerHTML = `
           <div class="overflow-hidden pr-2">
             <span class="text-xs font-bold text-white">${u.username || 'User'}</span>
-            <p class="text-[11px] text-slate-400 truncate">${u.email || '-'}</p>
+            <p class="text-[10px] text-slate-400 truncate">${u.email || '-'}</p>
             <p class="text-xs font-black text-emerald-400 mt-1">${Number(u.balance || 0).toLocaleString()} MMK</p>
           </div>
-          <button onclick="openEditUserModal('${u.id}', '${u.email || u.username}', ${u.balance || 0})" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold transition flex-shrink-0">
+          <button onclick="openEditUserModal('${u.id}', '${u.email || u.username}', ${u.balance || 0})" class="px-2.5 py-1 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex-shrink-0">
             Edit Bal ✏️
           </button>
         `;
@@ -570,14 +650,69 @@
       btn.disabled = false;
       btn.innerText = "သိမ်းဆည်းမည်";
 
-      if (error) return alert("Balance ပြင်ရာတွင် အမှားဖြစ်သည်: " + error.message);
+      if (error) return alert("Error: " + error.message);
 
       closeEditUserModal();
       await loadUsers();
-      alert("Balance အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ!");
+      alert("Balance ပြင်ဆင်ပြီးပါပြီ!");
     };
 
-    // Topups Management
+    // 6. Payments Management (Add/Delete Payment Methods)
+    async function loadPayments() {
+      const { data } = await supabase.from('payment_methods').select('*').order('created_at', { ascending: false });
+      allPayments = data || [];
+
+      const container = document.getElementById('paymentsContainer');
+      if (allPayments.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Payment Method မရှိသေးပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      allPayments.forEach(p => {
+        const item = document.createElement('div');
+        item.className = "glow-card p-3 rounded-2xl flex items-center justify-between";
+        item.innerHTML = `
+          <div>
+            <span class="text-[9px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+              ${p.name}
+            </span>
+            <p class="text-xs font-bold text-white mt-1">${p.account_name}</p>
+            <p class="text-[11px] text-slate-400 font-mono">${p.account_number}</p>
+          </div>
+          <button onclick="deletePaymentMethod('${p.id}')" class="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-bold">Delete</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('addPaymentForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('payMethodName').value.trim();
+      const account_name = document.getElementById('payAccName').value.trim();
+      const account_number = document.getElementById('payAccNumber').value.trim();
+
+      const btn = document.getElementById('savePaymentBtn');
+      btn.disabled = true;
+      btn.innerText = "သိမ်းနေသည်...";
+
+      const { error } = await supabase.from('payment_methods').insert([{ name, account_name, account_number }]);
+      btn.disabled = false;
+      btn.innerText = "Payment သိမ်းဆည်းမည်";
+
+      if (error) return alert("Error: " + error.message);
+      document.getElementById('addPaymentForm').reset();
+      await loadPayments();
+      alert("Payment Method အသစ် ထည့်သွင်းပြီးပါပြီ!");
+    });
+
+    window.deletePaymentMethod = async function(id) {
+      if (!confirm("ဤ Payment Method ကို ဖျက်ရန် သေချာပါသလား?")) return;
+      await supabase.from('payment_methods').delete().eq('id', id);
+      await loadPayments();
+    };
+
+    // 7. Topups (Deposits) Management
     async function loadDeposits() {
       const { data } = await supabase.from('deposits').select('*, profiles(username, email)').order('created_at', { ascending: false });
       const deposits = data || [];
@@ -586,39 +721,39 @@
 
       const container = document.getElementById('depositsListContainer');
       if (deposits.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ငွေဖြည့်မှတ်တမ်း မရှိပါ။</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Topup မှတ်တမ်း မရှိပါ။</p>';
         return;
       }
 
       container.innerHTML = '';
       deposits.forEach(d => {
         const item = document.createElement('div');
-        item.className = "glass p-4 rounded-2xl border border-slate-800 space-y-2.5";
+        item.className = "glow-card p-3 rounded-2xl space-y-2";
         let statusColor = d.status === 'approved' ? 'text-emerald-400' : (d.status === 'rejected' ? 'text-rose-400' : 'text-amber-400');
-        
+
         item.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
               <p class="text-xs font-bold text-white">${d.profiles?.username || d.sender_name || 'Member'}</p>
               <p class="text-[10px] text-slate-400 font-mono">${d.profiles?.email || '-'}</p>
-              <p class="text-[10px] text-indigo-400 mt-0.5">Method: ${d.payment_method || 'KBZ/Wave'}</p>
+              <p class="text-[10px] text-emerald-400 mt-0.5">Method: ${d.payment_method || 'KBZ/Wave'}</p>
             </div>
             <div class="text-right">
-              <span class="text-sm font-black text-emerald-400">${Number(d.amount).toLocaleString()} MMK</span>
+              <span class="text-xs font-black text-emerald-400">${Number(d.amount).toLocaleString()} MMK</span>
               <p class="text-[10px] font-bold uppercase mt-0.5 ${statusColor}">${d.status}</p>
             </div>
           </div>
           ${d.slip_url ? `
-            <div class="pt-1">
-              <a href="${d.slip_url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-blue-400 hover:underline">
-                <span>🖼️</span> ပြေစာ Slip ကြည့်ရန်
+            <div>
+              <a href="${d.slip_url}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-[10px] text-emerald-400 hover:underline">
+                <span>🖼️</span> Slip ကြည့်ရန်
               </a>
             </div>
           ` : ''}
           ${d.status === 'pending' ? `
-            <div class="flex gap-2 pt-2 border-t border-slate-800/80">
-              <button onclick="approveDeposit('${d.id}', '${d.user_id}',${d.amount})" class="flex-1 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">Approve</button>
-              <button onclick="rejectDeposit('${d.id}')" class="flex-1 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition">Reject</button>
+            <div class="flex gap-2 pt-1 border-t border-emerald-950/60">
+              <button onclick="approveDeposit('${d.id}', '${d.user_id}',${d.amount})" class="flex-1 py-1 rounded-xl bg-emerald-500 text-black font-black text-[11px]">Approve</button>
+              <button onclick="rejectDeposit('${d.id}')" class="flex-1 py-1 rounded-xl bg-rose-600 text-white font-bold text-[11px]">Reject</button>
             </div>
           ` : ''}
         `;
