@@ -68,8 +68,7 @@ async function loadUserStats() {
       document.getElementById('userTotalSpent').innerText = `${totalSpent.toLocaleString()} MMK`;
     }
   }
-}
-
+    }
 // Side Drawer Controls
 window.openDrawer = function() {
   const drawer = document.getElementById('sideDrawer');
@@ -121,7 +120,7 @@ window.selectPlatformFilter = function(platform) {
   document.getElementById('selectedServText').innerText = "-- အရင်ဆုံး Category ရွေးပါ --";
   resetDetails();
 };
-      
+
 // Dropdowns Toggle Controls
 window.toggleCatDropdown = function(e) {
   e.stopPropagation();
@@ -185,8 +184,7 @@ function populateCategories() {
     list.appendChild(item);
   }
 }
-
-// Select Category
+  // Select Category
 function selectCategory(catName, platformName, svgIcon) {
   document.getElementById('selectedCatText').innerHTML = `
     <div class="w-6 h-6 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center p-1 flex-shrink-0">
@@ -260,7 +258,8 @@ function selectServiceItem(service, displayId) {
   }
 
   calculatePrice();
-                          }
+}
+
 // Comments Line Auto Counter
 document.getElementById('orderComments')?.addEventListener('input', (e) => {
   const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
@@ -295,14 +294,14 @@ function resetDetails() {
   document.getElementById('orderQuantity').readOnly = false;
 }
 
-// Order Form Submit
+// Order Form Submit & Modal Trigger
 document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!selectedService) return alert("Service ရွေးပေးပါ။");
 
-  const qty = parseInt(document.getElementById('orderQuantity').value);
-  const link = document.getElementById('orderLink').value;
-  const comments = document.getElementById('orderComments').value;
+  const qty = parseInt(document.getElementById('orderQuantity').value) || 0;
+  const link = document.getElementById('orderLink').value.trim();
+  const comments = document.getElementById('orderComments')?.value || null;
   const total = Math.ceil((qty / 1000) * selectedService.rate);
 
   if (qty < selectedService.min_qty || qty > selectedService.max_qty) {
@@ -317,41 +316,55 @@ document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.innerText = "Processing...";
 
-  const { data: newOrder, error: orderError } = await supabase.from('orders').insert([{
-    user_id: currentUser.id,
-    service_id: selectedService.provider_service_id || selectedService.id,
-    service_name: selectedService.name,
-    target_link: link,
-    quantity: qty,
-    charge: total,
-    comments: comments || null,
-    status: 'pending'
-  }]).select().single();
+  try {
+    const { data: newOrder, error: orderError } = await supabase.from('orders').insert([{
+      user_id: currentUser.id,
+      service_id: selectedService.provider_service_id || selectedService.id,
+      service_name: selectedService.name,
+      target_link: link,
+      quantity: qty,
+      charge: total,
+      comments: comments,
+      status: 'pending'
+    }]).select().single();
 
-  if (orderError) {
-    alert("Order တင်ရာတွင် အမှားရှိပါသည်: " + orderError.message);
+    if (orderError) throw orderError;
+
+    const newBalance = currentBalance - total;
+    await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
+
+    const displayOrderId = newOrder.numeric_id ? `#${newOrder.numeric_id}` : `#${newOrder.id.slice(0, 5)}`;
+    
+    if (document.getElementById('modalOrderId')) document.getElementById('modalOrderId').innerText = displayOrderId;
+    if (document.getElementById('modalLink')) document.getElementById('modalLink').innerText = link;
+    if (document.getElementById('modalQty')) document.getElementById('modalQty').innerText = qty.toLocaleString();
+    if (document.getElementById('modalCharge')) document.getElementById('modalCharge').innerText = `${total.toLocaleString()} MMK`;
+    if (document.getElementById('modalBal')) document.getElementById('modalBal').innerText = `${newBalance.toLocaleString()} MMK`;
+
+    currentBalance = newBalance;
+    if (document.getElementById('userBalanceDisplay')) document.getElementById('userBalanceDisplay').innerText = `${newBalance.toLocaleString()} MMK`;
+    if (document.getElementById('bannerBalance')) document.getElementById('bannerBalance').innerText = `${newBalance.toLocaleString()} MMK`;
+
+    const modal = document.getElementById('successModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+    } else {
+      alert(`Order အောင်မြင်စွာ တင်ပြီးပါပြီ!\nOrder ID: ${displayOrderId}`);
+      window.location.reload();
+    }
+
+  } catch (err) {
+    alert("Order တင်ရာတွင် အမှားရှိပါသည်: " + err.message);
+  } finally {
     btn.disabled = false;
     btn.innerText = "Order တင်မည်";
-    return;
   }
-
-  const newBalance = currentBalance - total;
-  await supabase.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
-
-  // Success Modal Fill
-  document.getElementById('modalOrderId').innerText = `#${newOrder.numeric_id || newOrder.id.slice(0, 4)}`;
-  document.getElementById('modalLink').innerText = link;
-  document.getElementById('modalQty').innerText = qty.toLocaleString();
-  document.getElementById('modalCharge').innerText = `${total.toLocaleString()} MMK`;
-  document.getElementById('modalBal').innerText = `${newBalance.toLocaleString()} MMK`;
-
-  const modal = document.getElementById('successModal');
-  modal.classList.remove('hidden');
 });
 
 window.closeSuccessModal = function() {
+  const modal = document.getElementById('successModal');
+  if (modal) modal.classList.add('hidden');
   window.location.reload();
 };
 
 initUserDashboard();
-                                                       
