@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation - ZenBoostMm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .glow-card {
+      background: #111411;
+      border: 1px solid #10b98133;
+      box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.15);
+    }
+    .glow-text {
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    .code-box {
+      background: #0a0c0a;
+      border: 1px solid #10b98122;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body class="bg-[#0a0c0a] text-slate-100 min-h-screen pb-16">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center bg-[#0a0c0a]/90 backdrop-blur-md border-b border-emerald-950/80">
+    <div class="flex items-center gap-2.5">
+      <a href="user-dashboard.html" class="w-8 h-8 rounded-xl bg-neutral-900 border border-emerald-900/50 flex items-center justify-center text-emerald-400 hover:text-white transition">
+        ←
+      </a>
+      <div>
+        <h1 class="text-base font-black text-emerald-400 tracking-wide glow-text">ZenBoostMm API</h1>
+        <p class="text-[10px] text-slate-400">Reseller API v2 Support</p>
+      </div>
+    </div>
+    <span class="text-xs font-mono font-bold text-emerald-400 px-2.5 py-1 rounded-lg bg-emerald-950 border border-emerald-800">
+      v2.0
+    </span>
+  </header>
+
+  <main class="max-w-xl mx-auto p-4 space-y-4">
+
+    <!-- API Key Generator Card -->
+    <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+          <span>🔑</span> သင်၏ ကိုယ်ပိုင် API Key
+        </h3>
+        <button onclick="generateNewApiKey()" class="text-[10px] text-emerald-400 hover:underline">
+          Key အသစ်ထုတ်မည်
+        </button>
+      </div>
+
+      <div class="relative flex items-center">
+        <input type="text" id="userApiKeyInput" readonly value="API Key ရယူနေပါသည်..." class="w-full bg-[#0a0c0a] border border-emerald-950 rounded-2xl pl-3.5 pr-20 py-2.5 text-xs text-emerald-400 font-mono focus:outline-none">
+        <button onclick="copyApiKey()" class="absolute right-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black rounded-xl transition">
+          Copy
+        </button>
+      </div>
+      <p class="text-[10px] text-slate-400 leading-relaxed">
+        * ဤ Key ကို အသုံးပြု၍ သင်၏ ကိုယ်ပိုင် SMM Panel သို့မဟုတ် Bot တွင် ချိတ်ဆက်ရောင်းချနိုင်ပါသည်။
+      </p>
+    </div>
+
+    <!-- API General Info -->
+    <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 space-y-3">
+      <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">API Information</h3>
+      
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between py-1 border-b border-emerald-950/60">
+          <span class="text-slate-400">HTTP Method</span>
+          <span class="font-bold text-emerald-400 font-mono">POST</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-emerald-950/60">
+          <span class="text-slate-400">Response Format</span>
+          <span class="font-bold text-slate-200 font-mono">JSON</span>
+        </div>
+        <div class="py-1">
+          <span class="text-slate-400 block mb-1">API URL (Endpoint)</span>
+          <div class="code-box p-2.5 rounded-xl text-emerald-300 text-[11px] break-all select-all" id="apiEndpointDisplay">
+            https://your-project.supabase.co/functions/v1/v2
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documentation Sections -->
+    <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 space-y-4">
+      <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Standard Parameters & Actions</h3>
+
+      <!-- 1. Balance -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-white">1. လက်ကျန်ငွေ စစ်ဆေးခြင်း (Balance)</span>
+        <div class="code-box p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
+          <p><span class="text-emerald-400">key</span>: သင်၏ API Key</p>
+          <p><span class="text-emerald-400">action</span>: balance</p>
+        </div>
+      </div>
+
+      <!-- 2. Services List -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-white">2. ဝန်ဆောင်မှုများ ကြည့်ရှုခြင်း (Services List)</span>
+        <div class="code-box p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
+          <p><span class="text-emerald-400">key</span>: သင်၏ API Key</p>
+          <p><span class="text-emerald-400">action</span>: services</p>
+        </div>
+      </div>
+
+      <!-- 3. Add Order -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-white">3. အော်ဒါတင်ခြင်း (Add Order)</span>
+        <div class="code-box p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
+          <p><span class="text-emerald-400">key</span>: သင်၏ API Key</p>
+          <p><span class="text-emerald-400">action</span>: add</p>
+          <p><span class="text-emerald-400">service</span>: Service ID</p>
+          <p><span class="text-emerald-400">link</span>: Target Link</p>
+          <p><span class="text-emerald-400">quantity</span>: အရေအတွက်</p>
+        </div>
+      </div>
+
+      <!-- 4. Order Status -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-white">4. အော်ဒါအခြေအနေ စစ်ဆေးခြင်း (Status)</span>
+        <div class="code-box p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
+          <p><span class="text-emerald-400">key</span>: သင်၏ API Key</p>
+          <p><span class="text-emerald-400">action</span>: status</p>
+          <p><span class="text-emerald-400">order</span>: Order ID</p>
+        </div>
+      </div>
+    </div>
+
+      </main>
+                   <!-- JavaScript System for API Keys & Clipboard -->
+  <script type="module">
+    import { supabase } from './js/config.js';
+
+    let currentUserId = null;
+
+    async function initApiKeyPage() {
+      // Check User Session
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      currentUserId = user.id;
+
+      // Update Endpoint URL dynamically using current Supabase URL
+      const supabaseUrl = supabase.supabaseUrl;
+      const endpoint = `${supabaseUrl}/functions/v1/v2`;
+      const displayElem = document.getElementById('apiEndpointDisplay');
+      if (displayElem) {
+        displayElem.innerText = endpoint;
+      }
+
+      // Fetch User's API Key
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('api_key')
+        .eq('id', user.id)
+        .single();
+
+      const input = document.getElementById('userApiKeyInput');
+      if (profile && profile.api_key) {
+        input.value = profile.api_key;
+      } else {
+        // Auto generate if not exists
+        await generateNewApiKey();
+      }
+    }
+
+    // Generate New API Key Function
+    window.generateNewApiKey = async function() {
+      if (!currentUserId) return;
+
+      const confirmChange = confirm("API Key အသစ်ထုတ်ပါက ယခင် Key ဖြင့် ချိတ်ထားသော Panel/Bot များ အလုပ်လုပ်တော့မည် မဟုတ်ပါ။ ဆက်လုပ်မည် သေချာပါသလား?");
+      if (!confirmChange && document.getElementById('userApiKeyInput').value !== "API Key ရယူနေပါသည်...") {
+        return;
+      }
+
+      const input = document.getElementById('userApiKeyInput');
+      input.value = "Generating...";
+
+      // Generate 32-character random hex string
+      const array = new Uint8Array(16);
+      crypto.getRandomValues(array);
+      const newKey = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ api_key: newKey })
+        .eq('id', currentUserId);
+
+      if (error) {
+        alert("API Key ထုတ်ရာတွင် အမှားဖြစ်သည်: " + error.message);
+        input.value = "Error";
+      } else {
+        input.value = newKey;
+        alert("API Key အသစ် အောင်မြင်စွာ ထုတ်ယူပြီးပါပြီ!");
+      }
+    };
+
+    // Copy to Clipboard
+    window.copyApiKey = function() {
+      const input = document.getElementById('userApiKeyInput');
+      if (!input.value || input.value.includes("...")) return;
+
+      navigator.clipboard.writeText(input.value).then(() => {
+        alert("API Key ကို ကူးယူပြီးပါပြီ!");
+      }).catch(err => {
+        input.select();
+        document.execCommand('copy');
+        alert("API Key ကို ကူးယူပြီးပါပြီ!");
+      });
+    };
+
+    initApiKeyPage();
+  </script>
+</body>
+</html>
