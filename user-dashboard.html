@@ -3,294 +3,590 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard - SMM Boost</title>
+  <title>ZenBoostMm - User Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    .glass {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .glow-card {
+      background: #111411;
+      border: 1px solid #10b98133;
+      box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.15);
     }
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .glow-text {
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 md:pb-10 overflow-x-hidden">
+<body class="bg-[#0a0c0a] text-slate-100 min-h-screen pb-20 overflow-x-hidden">
 
-  <!-- Top Navbar -->
-  <header class="glass sticky top-0 z-40 px-4 py-3 flex justify-between items-center border-b border-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 px-4 py-3.5 flex justify-between items-center bg-[#0a0c0a]/90 backdrop-blur-md border-b border-emerald-950/80">
     <div class="flex items-center gap-3">
-      <h1 class="text-lg font-black text-indigo-400 tracking-wider">SMM BOOST</h1>
-    </div>
-    <div class="flex items-center gap-2">
-      <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300">
-        <span class="text-indigo-400">👤</span>
-        <span id="navUsernameDisplay">User</span>
-      </div>
-      <div class="glass px-3 py-1.5 rounded-xl border border-indigo-500/30 flex items-center gap-2">
-        <span class="text-xs font-bold text-emerald-400" id="userBalanceDisplay">0 MMK</span>
-      </div>
-      <button onclick="openDrawer()" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition">
-        <span class="text-slate-200 font-bold leading-none">☰</span>
+      <!-- Menu Drawer Toggle Button -->
+      <button onclick="toggleMenu()" class="w-9 h-9 rounded-2xl bg-neutral-900 border border-emerald-950 flex items-center justify-center text-emerald-400 hover:text-white transition">
+        ☰
       </button>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-black text-emerald-400">
+          ZB
+        </div>
+        <h1 class="text-base font-black text-emerald-400 tracking-wide glow-text">ZenBoostMm</h1>
+      </div>
     </div>
+    <!-- Balance Header Badge -->
+    <a href="topup.html" class="px-3 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+      <span>💰</span> <span id="userBalanceDisplay">0 MMK</span>
+    </a>
   </header>
 
-  <!-- Side Drawer Menu -->
-  <div id="drawerBackdrop" onclick="closeDrawer()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300"></div>
-  
-  <div id="sideDrawer" class="fixed top-0 right-0 h-full w-72 bg-[#0B1120] border-l border-slate-800 z-[100] transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
-    <div class="p-5 flex justify-between items-center border-b border-slate-800">
-      <div class="overflow-hidden">
-        <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">LOGGED IN AS</p>
-        <p class="text-sm font-bold text-indigo-400 truncate" id="drawerUsernameDisplay">Loading...</p>
-        <p class="text-[11px] text-slate-500 truncate" id="drawerEmailDisplay">user@email.com</p>
+  <!-- Sidebar Drawer Menu -->
+  <div id="drawerOverlay" onclick="toggleMenu()" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm transition-opacity"></div>
+  <aside id="sideDrawer" class="fixed top-0 left-0 bottom-0 z-50 w-72 bg-[#111411] border-r border-emerald-950 p-5 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between">
+    <div class="space-y-6">
+      
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-emerald-950/80">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-sm font-black text-emerald-400">
+            ZB
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-white leading-tight">ZenBoostMm</h2>
+            <p class="text-[10px] text-slate-400">Dashboard Menu</p>
+          </div>
+        </div>
+        <button onclick="toggleMenu()" class="w-7 h-7 rounded-xl bg-neutral-900 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+          ✕
+        </button>
       </div>
-      <button onclick="closeDrawer()" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
-    </div>
-    
-    <div class="flex-1 py-6 flex flex-col gap-2 px-4 overflow-y-auto">
-      <a href="user-dashboard.html" class="px-5 py-3.5 text-sm text-white bg-indigo-600/20 border border-indigo-500/30 rounded-2xl transition">
-        ပင်မစာမျက်နှာ (Home)
-      </a>
-      <a href="profile.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
-        ကိုယ်ရေးအချက်အလက် (Profile)
-      </a>
-      <a href="topup.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
-        ငွေဖြည့်ရန် (Topup)
-      </a>
-      <a href="orders.html" class="px-5 py-3.5 text-sm text-slate-300 hover:bg-slate-800/50 rounded-2xl transition">
-        အော်ဒါမှတ်တမ်း (History)
-      </a>
-      <a href="ai-support.html" class="px-5 py-3.5 text-sm text-indigo-300 hover:bg-slate-800/50 rounded-2xl transition flex items-center gap-2 border border-indigo-500/20 bg-indigo-900/10">
-        <span>🤖</span> 24/7 AI အကူအညီ (AI Support)
-      </a>
-      <a href="admin-dashboard.html" id="adminPanelLink" class="hidden mt-4 px-5 py-3.5 text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 rounded-2xl font-bold transition">
-        Admin Panel သို့သွားရန်
-      </a>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-2 text-xs font-semibold">
+        <a href="user-dashboard.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+          <span class="text-base">🛒</span> New Order
+        </a>
+        <a href="orders.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
+          <span class="text-base">🕒</span> Orders မှတ်တမ်း
+        </a>
+        <a href="https://t.me/ZenBoostMm_Support" target="_blank" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
+          <span class="text-base">🤖</span> 24/7 AI အကူအညီ
+        </a>
+        <a href="api.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
+          <span class="text-base">💻</span> API စနစ် & Keys
+        </a>
+        <a href="topup.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
+          <span class="text-base">💳</span> ငွေဖြည့်ရန် (Topup)
+        </a>
+        <a href="admin-dashboard.html" id="adminMenuLink" class="hidden flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+          <span class="text-base">🛡️</span> Admin Panel
+        </a>
+      </nav>
+
     </div>
 
-    <div class="p-5 border-t border-slate-800">
-      <button onclick="openLogoutModal()" class="w-full text-left px-5 py-3.5 text-sm text-rose-400 hover:bg-rose-500/10 rounded-2xl transition">
-        အကောင့်ထွက်မည် (Logout)
+    <!-- Drawer Footer Logout -->
+    <div class="pt-4 border-t border-emerald-950/80">
+      <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold transition border border-rose-500/20">
+        <span>🚪</span> အကောင့်ထွက်မည်
       </button>
     </div>
-  </div>
+  </aside>
 
-  <main class="max-w-xl mx-auto p-4 md:p-6 space-y-4">
+  <!-- Main Container -->
+  <main class="max-w-xl mx-auto p-4 space-y-4">
 
-    <!-- Welcome Card & User Quick Stats -->
-    <div class="glass p-5 rounded-3xl border border-indigo-500/20 space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs text-slate-400">Welcome back 👋</p>
-          <h2 class="text-lg font-black text-white" id="bannerUsername">User</h2>
-        </div>
-        <div class="text-right">
-          <p class="text-[10px] text-slate-400 uppercase tracking-wider">Available Balance</p>
-          <p class="text-base font-black text-emerald-400" id="bannerBalance">0 MMK</p>
-        </div>
+    <!-- User Profile & Balance Banner Card -->
+    <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] text-slate-400 uppercase tracking-wider">လက်ရှိအကောင့် လက်ကျန်ငွေ</p>
+        <h2 class="text-2xl font-black text-emerald-400 glow-text" id="bannerBalance">0 MMK</h2>
+        <p class="text-[11px] text-slate-300 font-medium" id="userUsernameDisplay">မင်္ဂလာပါ User</p>
       </div>
-
-      <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/60">
-        <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-          <p class="text-[11px] text-slate-400">Total Orders</p>
-          <p class="text-base font-black text-indigo-400 mt-0.5" id="userTotalOrders">0</p>
-        </div>
-        <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-          <p class="text-[11px] text-slate-400">Total Spent</p>
-          <p class="text-base font-black text-indigo-400 mt-0.5" id="userTotalSpent">0 MMK</p>
-        </div>
-      </div>
+      <a href="topup.html" class="px-4 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+        <span>➕</span> ငွေဖြည့်
+      </a>
     </div>
 
-    <!-- Platform Categories Selection Bar (Inline SVGs) -->
-    <div class="flex items-center gap-2.5 overflow-x-auto pb-1 pt-1 hide-scrollbar" id="platformFilterBar">
-      <button onclick="selectPlatformFilter('All')" id="btnPlat-All" class="platform-tab active flex items-center gap-2 px-4 py-2 rounded-2xl bg-blue-600 text-white border border-blue-500 text-xs font-semibold whitespace-nowrap transition shadow-md shadow-blue-600/30">
-        <span>☰</span> အားလုံး
+    <!-- Platform Filter Tabs With Official Logos -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar" id="platformFilterBar">
+      
+      <!-- All Platform -->
+      <button onclick="filterPlatform('All')" id="platBtn-All" class="platform-tab px-3.5 py-2 rounded-2xl bg-emerald-500 text-black text-xs font-black whitespace-nowrap shadow-md shadow-emerald-500/20 flex items-center gap-2">
+        <span>🌟</span> အားလုံး
       </button>
 
-      <button onclick="selectPlatformFilter('TikTok')" id="btnPlat-TikTok" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
-        <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-          <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V9.45a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 3.14 15.717a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V8.868a8.196 8.196 0 0 0 4.775 1.523V6.946a4.835 4.835 0 0 1-1-.26z" fill="#00F2FE"/>
-          <path d="M18.589 5.686a4.793 4.793 0 0 1-3.77-4.245V1h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V8.45a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 2.14 14.717a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V7.868a8.196 8.196 0 0 0 4.775 1.523V5.946a4.835 4.835 0 0 1-1-.26z" fill="#FE2C55"/>
-          <path d="M19.089 6.186a4.793 4.793 0 0 1-3.77-4.245V1.5h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.066-.098a2.894 2.894 0 0 1 2.37-4.512c.328 0 .644.055.938.156V8.95a6.34 6.34 0 0 0-.938-.07A6.337 6.337 0 0 0 2.64 15.217a6.337 6.337 0 0 0 10.74 4.542l.067-.066a6.3 6.3 0 0 0 1.867-4.475V8.368a8.196 8.196 0 0 0 4.775 1.523V6.446a4.835 4.835 0 0 1-1-.26z" fill="#FFFFFF"/>
-        </svg>
+      <!-- TikTok -->
+      <button onclick="filterPlatform('TikTok')" id="platBtn-TikTok" class="platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg" alt="TikTok" class="w-4 h-4 rounded-full object-cover">
         <span>TikTok</span>
       </button>
 
-      <button onclick="selectPlatformFilter('Telegram')" id="btnPlat-Telegram" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
-        <svg class="w-4 h-4 text-[#24A1DE] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.943z"/>
-        </svg>
+      <!-- Telegram -->
+      <button onclick="filterPlatform('Telegram')" id="platBtn-Telegram" class="platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="w-4 h-4 rounded-full object-cover">
         <span>Telegram</span>
       </button>
 
-      <button onclick="selectPlatformFilter('YouTube')" id="btnPlat-YouTube" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
-        <svg class="w-4 h-4 text-[#FF0000] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-        </svg>
-        <span>YouTube</span>
-      </button>
-
-      <button onclick="selectPlatformFilter('Facebook')" id="btnPlat-Facebook" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
-        <svg class="w-4 h-4 text-[#1877F2] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
+      <!-- Facebook -->
+      <button onclick="filterPlatform('Facebook')" id="platBtn-Facebook" class="platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" class="w-4 h-4 rounded-full object-cover">
         <span>Facebook</span>
       </button>
 
-      <button onclick="selectPlatformFilter('Instagram')" id="btnPlat-Instagram" class="platform-tab flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold whitespace-nowrap hover:border-slate-700 transition">
-        <svg class="w-4 h-4 text-[#E4405F] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
+      <!-- YouTube -->
+      <button onclick="filterPlatform('YouTube')" id="platBtn-YouTube" class="platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" class="w-4 h-4 object-contain">
+        <span>YouTube</span>
+      </button>
+
+      <!-- Instagram -->
+      <button onclick="filterPlatform('Instagram')" id="platBtn-Instagram" class="platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" class="w-4 h-4 rounded-md object-cover">
         <span>Instagram</span>
       </button>
-    </div>
 
-    <!-- New Order Card -->
-    <div class="glass p-5 md:p-8 rounded-3xl space-y-5">
-      <h2 class="text-base font-bold text-indigo-300">New Order တင်ရန်</h2>
-      <form id="orderForm" class="space-y-4">
-        
-        <!-- Category Custom Dropdown -->
+  </div>
+      <!-- Order Placement Section -->
+    <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 space-y-4">
+      
+      <!-- Category Selection Dropdown -->
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <span>📂</span> Category (အမျိုးအစား ရွေးချယ်ပါ)
+        </label>
+        <div class="relative">
+          <button type="button" onclick="toggleDropdown('catDropdownList')" id="selectedCatBtn" class="w-full bg-neutral-900 border border-emerald-950 hover:border-emerald-800 rounded-2xl px-4 py-3 text-xs text-left flex justify-between items-center transition">
+            <span id="selectedCatText" class="text-slate-400">-- Category တစ်ခုရွေးပါ --</span>
+            <span class="text-emerald-400 text-xs">▼</span>
+          </button>
+          
+          <div id="catDropdownList" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#111411] border border-emerald-900 rounded-2xl shadow-2xl z-30 max-h-56 overflow-y-auto p-1.5 space-y-1">
+            <!-- Categories will load here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Selection Dropdown -->
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <span>⚡</span> Service (ဝန်ဆောင်မှု ရွေးချယ်ပါ)
+        </label>
+        <div class="relative">
+          <button type="button" onclick="toggleDropdown('servDropdownList')" id="servDropdownBtn" disabled class="w-full bg-neutral-900 border border-emerald-950 disabled:opacity-50 rounded-2xl px-4 py-3 text-xs text-left flex justify-between items-center transition">
+            <span id="selectedServText" class="text-slate-400">-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --</span>
+            <span class="text-emerald-400 text-xs">▼</span>
+          </button>
+
+          <div id="servDropdownList" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#111411] border border-emerald-900 rounded-2xl shadow-2xl z-30 max-h-60 overflow-y-auto p-1.5 space-y-1.5">
+            <!-- Services cards will load here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Details Box -->
+      <div id="serviceDetailsBox" class="hidden bg-neutral-950/80 border border-emerald-950/80 rounded-2xl p-3.5 space-y-2 text-xs">
+        <div class="flex justify-between items-center border-b border-emerald-950/60 pb-1.5">
+          <span class="text-slate-400">⏱️ ပျမ်းမျှကြာချိန်</span>
+          <span class="font-bold text-emerald-400" id="detailTime">-</span>
+        </div>
+        <div class="flex justify-between items-center border-b border-emerald-950/60 pb-1.5">
+          <span class="text-slate-400">📊 အနည်းဆုံး / အများဆုံး</span>
+          <span class="font-bold text-slate-200"><span id="detailMin">0</span> - <span id="detailMax">0</span></span>
+        </div>
+        <div class="pt-0.5">
+          <span class="text-slate-400 block mb-0.5">📝 ဖတ်ရန်မှတ်ချက်</span>
+          <p class="text-[11px] text-slate-300 leading-relaxed" id="detailNote">-</p>
+        </div>
+      </div>
+
+      <!-- Order Input Form -->
+      <form id="orderForm" class="space-y-3.5 pt-1">
         <div>
-          <label class="block text-xs text-slate-400 mb-1.5">အမျိုးအစား (Category)</label>
-          <div class="relative">
-            <button type="button" onclick="toggleCatDropdown(event)" id="catDropdownBtn" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 flex items-center justify-between">
-              <span id="selectedCatText" class="text-slate-400 flex items-center gap-2.5 font-medium">
-                Category ရွေးချယ်ပါ
-              </span>
-              <span class="text-slate-500 text-xs">▼</span>
-            </button>
-            <div id="catDropdownList" class="hidden absolute left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-800 custom-scroll"></div>
-          </div>
-        </div>
-
-        <!-- Service Custom Dropdown -->
-        <div>
-          <label class="block text-xs text-slate-400 mb-1.5">ဝန်ဆောင်မှု (Service)</label>
-          <div class="relative">
-            <button type="button" onclick="toggleServDropdown(event)" id="servDropdownBtn" disabled class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 flex items-center justify-between disabled:opacity-50">
-              <span id="selectedServText" class="text-slate-400 truncate flex items-center gap-2 font-medium">
-                -- အရင်ဆုံး Category ရွေးပါ --
-              </span>
-              <span class="text-slate-500 text-xs flex-shrink-0">▼</span>
-            </button>
-            <div id="servDropdownList" class="hidden absolute left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-30 max-h-72 overflow-y-auto p-2 space-y-2 custom-scroll"></div>
-          </div>
-        </div>
-
-        <!-- NOTES Box -->
-        <div id="serviceDetailsBox" class="hidden bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2.5">
-          <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-bold">
-            <span>ℹ️</span> NOTES (ဖတ်ရန်)
-          </div>
-          <p class="text-xs text-slate-300 whitespace-pre-line leading-relaxed" id="detailNote">-</p>
-          <div class="text-[11px] text-slate-500 pt-2 border-t border-slate-800">
-            Min: <span id="detailMin" class="text-slate-300 font-semibold">0</span> - Max: <span id="detailMax" class="text-slate-300 font-semibold">0</span>
-          </div>
-        </div>
-
-        <!-- Link Input -->
-        <div>
-          <label class="block text-xs text-slate-400 mb-1.5">Link (လင့်ခ်)</label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔗</span>
-            <input type="url" id="orderLink" required placeholder="https://..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
-          </div>
-        </div>
-
-        <!-- Comments Section -->
-        <div id="commentsContainer" class="hidden space-y-1.5">
-          <label class="block text-xs text-slate-400 flex justify-between">
-            <span>Comments (တစ်ကြောင်းလျှင် Comment တစ်ခုစီ ရေးပါ)</span>
-            <span class="text-indigo-400 font-bold" id="commentCount">0 Lines</span>
+          <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+            <span>🔗</span> Target Link (လင့်ခ်)
           </label>
-          <textarea id="orderComments" rows="4" placeholder="Good video!&#10;Awesome content!&#10;Love this..." class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-3 text-sm focus:outline-none focus:border-indigo-500"></textarea>
+          <input type="url" id="orderLink" required placeholder="https://..." class="w-full bg-neutral-900 border border-emerald-950 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-xs text-white focus:outline-none">
         </div>
 
-        <!-- Quantity Input -->
-        <div id="quantityContainer">
-          <label class="block text-xs text-slate-400 mb-1.5">Quantity (အရေအတွက်)</label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🧮</span>
-            <input type="number" id="orderQuantity" required placeholder="ဥပမာ - 1000" class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
-          </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+            <span>🔢</span> Quantity (အရေအတွက်)
+          </label>
+          <input type="number" id="orderQuantity" required placeholder="0" class="w-full bg-neutral-900 border border-emerald-950 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-xs text-white focus:outline-none font-mono">
         </div>
 
-        <!-- Time & Total Charge Display (MMK) -->
-        <div class="space-y-2 pt-1">
-          <div class="flex justify-between items-center bg-slate-900/50 px-4 py-3 rounded-2xl border border-slate-800">
-            <span class="text-xs text-slate-400 flex items-center gap-1.5">⏱ Order ပျမ်းမျှ ကြာချိန်:</span>
-            <span class="text-xs font-bold text-amber-400" id="detailTime">-</span>
+        <!-- Custom Comments Box -->
+        <div id="commentsContainer" class="hidden space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-bold text-slate-300 flex items-center gap-1">
+              <span>💬</span> Comments (တစ်ကြောင်းလျှင် တစ်ခု)
+            </label>
+            <span class="text-[10px] text-emerald-400" id="commentCount">0 Lines</span>
           </div>
-          <div class="flex justify-between items-center bg-indigo-950/20 px-4 py-3 rounded-2xl border border-indigo-500/20">
-            <span class="text-xs text-slate-400">ကျသင့်ငွေ:</span>
-            <span class="text-base font-black text-indigo-400" id="totalCharge">0 MMK</span>
-          </div>
+          <textarea id="orderComments" rows="3" placeholder="Nice post!&#10;Great video!" class="w-full bg-neutral-900 border border-emerald-950 focus:border-emerald-500 rounded-2xl p-3 text-xs text-white focus:outline-none"></textarea>
         </div>
 
-        <button type="submit" id="submitOrderBtn" class="w-full mt-2 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 font-bold text-sm text-white transition shadow-lg shadow-blue-600/20">
-          Order တင်မည်
+        <!-- Total Charge Display -->
+        <div class="flex justify-between items-center px-1 pt-2">
+          <span class="text-xs text-slate-400">ကျသင့်ငွေ စုစုပေါင်း:</span>
+          <span class="text-base font-black text-emerald-400 glow-text" id="totalCharge">0 MMK</span>
+        </div>
+
+        <button type="submit" id="submitOrderBtn" class="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs transition shadow-lg shadow-emerald-500/25">
+          Order တင်မည် 🚀
         </button>
       </form>
+
     </div>
 
   </main>
-
-  <!-- Logout Modal -->
-  <div id="logoutModal" class="hidden fixed inset-0 z-[120] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl">
-       <h3 class="text-base font-bold text-white">အကောင့်ထွက်မည်</h3>
-       <p class="text-xs text-slate-400 mt-2">SMM Boost မှ ထွက်ရန် သေချာပါသလား?</p>
-       <div class="flex gap-3 mt-6">
-          <button onclick="closeLogoutModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition text-xs">မထွက်ပါ</button>
-          <button onclick="confirmLogout()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition text-xs">ထွက်မည်</button>
-       </div>
-    </div>
-  </div>
-
-  <!-- Success Modal (Fixed) -->
-  <div id="successModal" class="hidden fixed inset-0 z-[120] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 md:p-7 max-w-sm w-full shadow-2xl text-center space-y-4">
-      <div class="w-14 h-14 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500 text-emerald-400 text-2xl font-bold">
+    <!-- Order Success Modal -->
+  <div id="orderSuccessModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glow-card rounded-3xl p-6 max-w-sm w-full space-y-4 text-center border border-emerald-500/40">
+      <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 mx-auto flex items-center justify-center text-xl">
         ✓
       </div>
       <div>
-        <h2 class="text-lg font-bold text-white">Order အောင်မြင်စွာ တင်ပြီးပါပြီ!</h2>
-        <p class="text-xs text-slate-400 mt-1">အချက်အလက်များကို အောက်တွင် စစ်ဆေးနိုင်ပါသည်</p>
+        <h3 class="text-base font-black text-white">Order တင်ခြင်း အောင်မြင်ပါသည်!</h3>
+        <p class="text-xs text-slate-400 mt-1">သင်၏ Order ကို စတင်ဆောင်ရွက်နေပါပြီ။</p>
       </div>
-      <div class="bg-slate-950/90 rounded-2xl p-4 text-left space-y-2.5 border border-slate-800 text-xs">
-        <div class="text-center pb-2.5 border-b border-slate-800">
-          <p class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Order ID</p>
-          <h1 class="text-2xl font-black text-emerald-400 tracking-wider" id="modalOrderId">#0</h1>
+      <div class="bg-neutral-950 rounded-2xl p-3 border border-emerald-950/80 text-left text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Order ID:</span>
+          <span class="font-mono text-emerald-400 font-bold" id="modalOrderId">#0</span>
         </div>
-        <div class="space-y-0.5">
-          <span class="text-slate-500 text-[10px]">Link:</span>
-          <p class="truncate text-blue-400 font-medium" id="modalLink">-</p>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-slate-400">Quantity:</span>
-          <span class="font-bold text-slate-200" id="modalQty">0</span>
-        </div>
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between">
           <span class="text-slate-400">ကျသင့်ငွေ:</span>
-          <span class="font-bold text-rose-400" id="modalCharge">0 MMK</span>
-        </div>
-        <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-          <span class="text-slate-400">လက်ကျန်ငွေ:</span>
-          <span class="font-bold text-indigo-400" id="modalBal">0 MMK</span>
+          <span class="text-slate-200 font-bold" id="modalOrderCharge">0 MMK</span>
         </div>
       </div>
-      <button type="button" onclick="closeSuccessModal()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-600/30">
-        အိုကေ (OK)
-      </button>
+      <div class="flex gap-2">
+        <a href="orders.html" class="flex-1 py-2.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 font-bold text-xs">
+          မှတ်တမ်းကြည့်ရန်
+        </a>
+        <button onclick="closeSuccessModal()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-black font-black text-xs shadow-lg shadow-emerald-500/20">
+          ထပ်တင်မည်
+        </button>
+      </div>
     </div>
   </div>
-    <script type="module" src="js/user.js"></script>
+
+  <!-- Embedded JavaScript System -->
+  <script type="module">
+    import { supabase, ADMIN_EMAIL } from './js/config.js';
+
+    let currentUser = null;
+    let userBalance = 0;
+    let allServices = [];
+    let filteredServices = [];
+    let selectedPlatform = 'All';
+    let selectedCategory = '';
+    let selectedService = null;
+
+    // 1. Initialize Dashboard
+    async function initUserDashboard() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+
+      // Show Admin Menu if current user is admin
+      if (user.email === ADMIN_EMAIL) {
+        document.getElementById('adminMenuLink')?.classList.remove('hidden');
+      }
+
+      await Promise.all([loadUserProfile(), loadAllServices()]);
+    }
+
+    // 2. Load User Profile & Balance
+    async function loadUserProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (data) {
+        userBalance = Number(data.balance || 0);
+        document.getElementById('userBalanceDisplay').innerText = `${userBalance.toLocaleString()} MMK`;
+        document.getElementById('bannerBalance').innerText = `${userBalance.toLocaleString()} MMK`;
+        document.getElementById('userUsernameDisplay').innerText = `မင်္ဂလာပါ ${data.username || currentUser.email.split('@')[0]}`;
+      }
+    }
+
+    // 3. Load Services From Database
+    async function loadAllServices() {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('rate', { ascending: true });
+
+      allServices = data || [];
+      renderCategoryList();
+    }
+
+    // 4. Platform Filter
+    window.filterPlatform = function(platform) {
+      selectedPlatform = platform;
+
+      // Update Tabs Style
+      document.querySelectorAll('.platform-tab').forEach(tab => {
+        tab.className = "platform-tab px-3 py-2 rounded-2xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap flex items-center gap-2 hover:border-emerald-800 transition";
+      });
+
+      const activeBtn = document.getElementById(`platBtn-${platform}`);
+      if (activeBtn) {
+        activeBtn.className = "platform-tab px-3.5 py-2 rounded-2xl bg-emerald-500 text-black text-xs font-black whitespace-nowrap shadow-md shadow-emerald-500/20 flex items-center gap-2";
+      }
+
+      // Reset Selected category & service
+      selectedCategory = '';
+      selectedService = null;
+      document.getElementById('selectedCatText').innerText = "-- Category တစ်ခုရွေးပါ --";
+      document.getElementById('selectedCatText').classList.add('text-slate-400');
+      document.getElementById('selectedServText').innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
+      document.getElementById('selectedServText').classList.add('text-slate-400');
+      document.getElementById('servDropdownBtn').disabled = true;
+      document.getElementById('serviceDetailsBox').classList.add('hidden');
+      calculateCharge();
+
+      renderCategoryList();
+    };
+
+    // 5. Render Categories
+    function renderCategoryList() {
+      let filtered = allServices;
+      if (selectedPlatform !== 'All') {
+        filtered = allServices.filter(s => s.platform.toLowerCase() === selectedPlatform.toLowerCase());
+      }
+
+      const categories = [...new Set(filtered.map(s => s.category))];
+      const container = document.getElementById('catDropdownList');
+      container.innerHTML = '';
+
+      if (categories.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 p-2 text-center">Category မရှိသေးပါ</p>';
+        return;
+      }
+
+      categories.forEach(cat => {
+        const item = document.createElement('button');
+        item.type = "button";
+        item.className = "w-full text-left p-2.5 rounded-xl hover:bg-neutral-900 text-xs text-slate-200 transition font-medium flex items-center justify-between";
+        item.innerHTML = `<span>${cat}</span><span class="text-[10px] text-emerald-400 font-mono">Select</span>`;
+        item.onclick = () => selectCategory(cat);
+        container.appendChild(item);
+      });
+    }
+
+    window.selectCategory = function(cat) {
+      selectedCategory = cat;
+      document.getElementById('selectedCatText').innerText = cat;
+      document.getElementById('selectedCatText').classList.remove('text-slate-400');
+      document.getElementById('catDropdownList').classList.add('hidden');
+
+      // Enable and populate services dropdown
+      document.getElementById('servDropdownBtn').disabled = false;
+      document.getElementById('selectedServText').innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
+      document.getElementById('selectedServText').classList.add('text-slate-400');
+      selectedService = null;
+      document.getElementById('serviceDetailsBox').classList.add('hidden');
+      calculateCharge();
+
+      renderServicesList();
+    };
+
+    // 6. Render Services
+    function renderServicesList() {
+      filteredServices = allServices.filter(s => s.category === selectedCategory);
+      const container = document.getElementById('servDropdownList');
+      container.innerHTML = '';
+
+      filteredServices.forEach(s => {
+        const item = document.createElement('div');
+        item.className = "p-2.5 rounded-xl bg-neutral-900/60 hover:bg-neutral-900 cursor-pointer border border-emerald-950/60 hover:border-emerald-800 transition space-y-1";
+        item.onclick = () => selectServiceItem(s);
+        item.innerHTML = `
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold text-white leading-snug">${s.name}</span>
+            <span class="text-xs font-black text-emerald-400 ml-2 whitespace-nowrap">${Number(s.rate).toLocaleString()} MMK</span>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+            <span>Min: ${s.min_qty} - Max: ${s.max_qty}</span>
+            <span>${s.time || ''}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function selectServiceItem(s) {
+      selectedService = s;
+      document.getElementById('selectedServText').innerText = `${s.name} — ${Number(s.rate).toLocaleString()} MMK`;
+      document.getElementById('selectedServText').classList.remove('text-slate-400');
+      document.getElementById('servDropdownList').classList.add('hidden');
+
+      // Show Details Box
+      document.getElementById('detailTime').innerText = s.time || 'Normal';
+      document.getElementById('detailMin').innerText = Number(s.min_qty).toLocaleString();
+      document.getElementById('detailMax').innerText = Number(s.max_qty).toLocaleString();
+      document.getElementById('detailNote').innerText = s.note || 'လင့်ခ်မှန်ကန်စွာ ထည့်သွင်းပေးပါ။';
+      document.getElementById('serviceDetailsBox').classList.remove('hidden');
+
+      // Custom Comments Check
+      const isCustomComment = (s.name || '').toLowerCase().includes('custom comments');
+      const commentsContainer = document.getElementById('commentsContainer');
+      const qtyInput = document.getElementById('orderQuantity');
+
+      if (isCustomComment) {
+        commentsContainer.classList.remove('hidden');
+        qtyInput.readOnly = true;
+      } else {
+        commentsContainer.classList.add('hidden');
+        qtyInput.readOnly = false;
+      }
+
+      calculateCharge();
+    }
+
+    // 7. Calculate Total Charge
+    function calculateCharge() {
+      if (!selectedService) {
+        document.getElementById('totalCharge').innerText = "0 MMK";
+        return;
+      }
+      const qty = parseInt(document.getElementById('orderQuantity').value) || 0;
+      const charge = Math.ceil((qty / 1000) * Number(selectedService.rate));
+      document.getElementById('totalCharge').innerText = `${charge.toLocaleString()} MMK`;
+    }
+
+    document.getElementById('orderQuantity')?.addEventListener('input', calculateCharge);
+
+    // Custom Comments Line Counter
+    document.getElementById('orderComments')?.addEventListener('input', (e) => {
+      const lines = e.target.value.split('\n').filter(l => l.trim().length > 0);
+      document.getElementById('commentCount').innerText = `${lines.length} Lines`;
+      document.getElementById('orderQuantity').value = lines.length;
+      calculateCharge();
+    });
+
+    // 8. Submit Order
+    document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!selectedService) return alert("ဝန်ဆောင်မှုတစ်ခု အရင်ရွေးချယ်ပါ!");
+
+      const link = document.getElementById('orderLink').value.trim();
+      const qty = parseInt(document.getElementById('orderQuantity').value);
+      const comments = document.getElementById('orderComments').value.trim();
+
+      if (!link) return alert("လင့်ခ် ထည့်သွင်းပါ");
+      if (isNaN(qty) || qty < selectedService.min_qty || qty > selectedService.max_qty) {
+        return alert(`အရေအတွက်သည် ${selectedService.min_qty} နှင့် ${selectedService.max_qty} ကြား ဖြစ်ရပါမည်။`);
+      }
+
+      const charge = Math.ceil((qty / 1000) * Number(selectedService.rate));
+      if (userBalance < charge) {
+        return alert(`လက်ကျန်ငွေ မလုံလောက်ပါ။ ကျသင့်ငွေ: ${charge.toLocaleString()} MMK (လက်ရှိလက်ကျန်: ${userBalance.toLocaleString()} MMK)`);
+      }
+
+      const btn = document.getElementById('submitOrderBtn');
+      btn.disabled = true;
+      btn.innerText = "Order တင်နေပါသည်... ⏳";
+
+      // 1. Deduct Balance
+      const newBal = userBalance - charge;
+      const { error: balErr } = await supabase
+        .from('profiles')
+        .update({ balance: newBal })
+        .eq('id', currentUser.id);
+
+      if (balErr) {
+        btn.disabled = false;
+        btn.innerText = "Order တင်မည် 🚀";
+        return alert("Error: " + balErr.message);
+      }
+
+      // 2. Insert Order
+      const { data: newOrder, error: orderErr } = await supabase
+        .from('orders')
+        .insert([{
+          user_id: currentUser.id,
+          service_id: selectedService.provider_service_id || selectedService.id,
+          service_name: selectedService.name,
+          target_link: link,
+          quantity: qty,
+          charge: charge,
+          comments: comments || null,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+
+      btn.disabled = false;
+      btn.innerText = "Order တင်မည် 🚀";
+
+      if (orderErr) {
+        // Rollback balance on failure
+        await supabase.from('profiles').update({ balance: userBalance }).eq('id', currentUser.id);
+        return alert("Order သိမ်းရာတွင် အမှားဖြစ်သည်: " + orderErr.message);
+      }
+
+      // Update Local Balance
+      userBalance = newBal;
+      document.getElementById('userBalanceDisplay').innerText = `${userBalance.toLocaleString()} MMK`;
+      document.getElementById('bannerBalance').innerText = `${userBalance.toLocaleString()} MMK`;
+
+      // Show Success Modal
+      document.getElementById('modalOrderId').innerText = `#${newOrder.numeric_id || newOrder.id.slice(0, 8)}`;
+      document.getElementById('modalOrderCharge').innerText = `${charge.toLocaleString()} MMK`;
+      document.getElementById('orderSuccessModal').classList.remove('hidden');
+
+      // Reset Inputs
+      document.getElementById('orderLink').value = '';
+      document.getElementById('orderQuantity').value = '';
+      document.getElementById('orderComments').value = '';
+      calculateCharge();
+    });
+
+    // 9. UI Helpers (Drawer, Dropdowns, Logout)
+    window.toggleMenu = function() {
+      const drawer = document.getElementById('sideDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      drawer.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    };
+
+    window.toggleDropdown = function(id) {
+      const target = document.getElementById(id);
+      target.classList.toggle('hidden');
+    };
+
+    window.closeSuccessModal = function() {
+      document.getElementById('orderSuccessModal').classList.add('hidden');
+    };
+
+    window.handleLogout = async function() {
+      if (!confirm("အကောင့်မှ ထွက်ရန် သေချာပါသလား?")) return;
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    };
+
+    // Close Dropdowns on Click Outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#selectedCatBtn') && !e.target.closest('#catDropdownList')) {
+        document.getElementById('catDropdownList')?.classList.add('hidden');
+      }
+      if (!e.target.closest('#servDropdownBtn') && !e.target.closest('#servDropdownList')) {
+        document.getElementById('servDropdownList')?.classList.add('hidden');
+      }
+    });
+
+    initUserDashboard();
+  </script>
 </body>
-</html>
+  </html>
+  
