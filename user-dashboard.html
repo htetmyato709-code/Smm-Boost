@@ -312,10 +312,9 @@
       </form>
     </div>
             </div>
-    <script type="module">
+                          <script type="module">
     import { supabase, ADMIN_EMAIL } from './js/config.js';
 
-    // Global State Variables
     let currentUser = null;
     let userBalance = 0;
     let allServices = [];
@@ -323,9 +322,8 @@
     let selectedPlatform = 'All';
     let selectedCategory = '';
     let selectedService = null;
-    let searchDebounceTimer = null;
 
-    // Platform Brand Icons Map (Crisp & Transparent)
+    // Platform Brand Icons Map (Crisp & Clean)
     const PLATFORM_ICONS = {
       tiktok: `<img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" class="w-4 h-4 object-contain inline-block">`,
       telegram: `<img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="w-4 h-4 rounded-full object-cover inline-block">`,
@@ -354,19 +352,16 @@
         }
         currentUser = user;
 
-        // Admin Link Access Control
         if (user.email === ADMIN_EMAIL) {
           const adminBtn = document.getElementById('adminMenuLink');
           if (adminBtn) adminBtn.classList.remove('hidden');
         }
 
-        // Fetch User Data & Services concurrently
         await Promise.all([
           loadUserProfile(),
           loadAllServices()
         ]);
 
-        // Realtime Subscription for Balance Updates
         setupRealtimeSubscription();
 
       } catch (err) {
@@ -382,10 +377,7 @@
         .eq('id', currentUser.id)
         .single();
 
-      if (error) {
-        console.error("Profile Fetch Error:", error);
-        return;
-      }
+      if (error) return console.error("Profile Fetch Error:", error);
 
       if (data) {
         userBalance = Number(data.balance || 0);
@@ -428,10 +420,7 @@
         .select('*')
         .order('rate', { ascending: true });
 
-      if (error) {
-        console.error("Services Fetch Error:", error);
-        return;
-      }
+      if (error) return console.error("Services Fetch Error:", error);
 
       allServices = data || [];
       renderCategoryList();
@@ -450,7 +439,6 @@
         activeBtn.className = "platform-tab px-3.5 py-2 rounded-2xl bg-emerald-500 text-black text-xs font-black whitespace-nowrap shadow-md shadow-emerald-500/20 flex items-center gap-2";
       }
 
-      // Reset Active Category & Service
       selectedCategory = '';
       selectedService = null;
 
@@ -473,7 +461,7 @@
       renderCategoryList();
     };
 
-        // 5. Render Categories with Platform Logo Support
+    // 5. Render Categories with Brand Logos
     function renderCategoryList() {
       let filtered = allServices;
       if (selectedPlatform !== 'All') {
@@ -541,7 +529,7 @@
       renderServicesList();
     };
 
-    // 6. Render Services List with Explicit Service ID (#ID)
+    // 6. Render Services List with Correct Clean Service ID
     function renderServicesList() {
       filteredServices = allServices.filter(s => s.category === selectedCategory);
       const container = document.getElementById('servDropdownList');
@@ -554,7 +542,9 @@
       }
 
       filteredServices.forEach(s => {
-        const servId = s.provider_service_id || s.id;
+        // ID သန့်ပြန့်စွာ ယူမည့်နေရာ
+        const servId = s.provider_service_id || s.numeric_id || (typeof s.id === 'number' ? s.id : s.id.slice(0, 5));
+        
         const item = document.createElement('div');
         item.className = "p-3 rounded-2xl bg-neutral-900/70 hover:bg-neutral-900 cursor-pointer border border-emerald-950/70 hover:border-emerald-800 transition space-y-1.5";
         item.onclick = () => selectServiceItem(s);
@@ -577,7 +567,7 @@
 
     function selectServiceItem(s) {
       selectedService = s;
-      const servId = s.provider_service_id || s.id;
+      const servId = s.provider_service_id || s.numeric_id || (typeof s.id === 'number' ? s.id : s.id.slice(0, 5));
 
       const servText = document.getElementById('selectedServText');
       if (servText) {
@@ -597,10 +587,10 @@
       const detailMax = document.getElementById('detailMax');
       const detailNote = document.getElementById('detailNote');
 
-      if (detailTime) detailTime.innerText = s.time || 'Normal Speed (10 - 60 mins)';
+      if (detailTime) detailTime.innerText = s.time || 'Normal Speed';
       if (detailMin) detailMin.innerText = Number(s.min_qty).toLocaleString();
       if (detailMax) detailMax.innerText = Number(s.max_qty).toLocaleString();
-      if (detailNote) detailNote.innerText = s.note || 'လင့်ခ်ကို သေချာစစ်ဆေးပြီး Public ထားရှိပေးပါ။';
+      if (detailNote) detailNote.innerText = s.note || 'လင့်ခ်ကို သေချာစစ်ဆေးပြီး ထည့်သွင်းပေးပါ။';
 
       document.getElementById('serviceDetailsBox')?.classList.remove('hidden');
 
@@ -619,8 +609,8 @@
       }
 
       calculateCharge();
-      }
-          // 7. Calculate Charge
+    }
+                            // 7. Calculate Charge
     function calculateCharge() {
       if (!selectedService) {
         document.getElementById('totalCharge').innerText = "0 MMK";
@@ -639,7 +629,7 @@
       calculateCharge();
     });
 
-    // 8. Submit Order & Show Complete Success Modal
+    // 8. Submit Order & Show Full Details Success Modal
     document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -664,7 +654,7 @@
       btn.innerText = "Order တင်နေပါသည်... ⏳";
 
       const remainingBal = userBalance - charge;
-      const servId = selectedService.provider_service_id || selectedService.id;
+      const servId = selectedService.provider_service_id || selectedService.numeric_id || (typeof selectedService.id === 'number' ? selectedService.id : selectedService.id.slice(0, 5));
 
       // 1. Deduct Balance
       const { error: balErr } = await supabase
