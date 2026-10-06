@@ -64,8 +64,9 @@
         <a href="orders.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
           <span class="text-base">🕒</span> Orders မှတ်တမ်း
         </a>
-        <a href="https://t.me/ZenBoostMm_Support" target="_blank" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
-          <span class="text-base">🤖</span> 24/7 AI အကူအညီ
+        <!-- Embedded AI Chat Modal Trigger -->
+        <a href="ai-support.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
+  <span class="text-base">🤖</span> 24/7 AI အကူအညီ
         </a>
         <a href="api.html" class="flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 text-slate-300 hover:text-white transition">
           <span class="text-base">💻</span> API စနစ် & Keys
@@ -101,7 +102,7 @@
       </a>
     </div>
 
-    <!-- Platform Filter Tabs (Clean Logos) -->
+    <!-- Platform Filter Tabs -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar" id="platformFilterBar">
       <button onclick="filterPlatform('All')" id="platBtn-All" class="platform-tab px-3.5 py-2 rounded-2xl bg-emerald-500 text-black text-xs font-black whitespace-nowrap shadow-md shadow-emerald-500/20 flex items-center gap-2">
         <span>🌟</span> အားလုံး
@@ -127,10 +128,11 @@
         <span>Instagram</span>
       </button>
     </div>
-        <!-- Order Card Section -->
+
+    <!-- Order Card Section -->
     <div class="glow-card rounded-3xl p-5 border border-emerald-500/30 space-y-4">
       
-      <!-- Category Dropdown with Logo Support -->
+      <!-- Category Dropdown with Brand Logo -->
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
           <span>📂</span> Category (အမျိုးအစား ရွေးချယ်ပါ)
@@ -147,7 +149,7 @@
         </div>
       </div>
 
-      <!-- Service Dropdown -->
+      <!-- Service Dropdown with Service ID -->
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
           <span>⚡</span> Service (ဝန်ဆောင်မှု ရွေးချယ်ပါ)
@@ -159,7 +161,7 @@
           </button>
 
           <div id="servDropdownList" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#111411] border border-emerald-900 rounded-2xl shadow-2xl z-30 max-h-60 overflow-y-auto p-1.5 space-y-1.5">
-            <!-- Services rendered here -->
+            <!-- Services with ID rendered here -->
           </div>
         </div>
       </div>
@@ -196,7 +198,7 @@
           <input type="number" id="orderQuantity" required placeholder="0" class="w-full bg-neutral-900 border border-emerald-950 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-xs text-white focus:outline-none font-mono">
         </div>
 
-        <!-- Custom Comments Container -->
+        <!-- Custom Comments -->
         <div id="commentsContainer" class="hidden space-y-1">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-bold text-slate-300 flex items-center gap-1">
@@ -275,10 +277,45 @@
 
     </div>
   </div>
-    <!-- JavaScript System: Part 3 (A) -->
-  <script type="module">
+
+  <!-- Embedded 24/7 AI Support Chat Modal -->
+  <div id="aiChatModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3.5">
+    <div class="glow-card rounded-3xl w-full max-w-sm h-[520px] flex flex-col border border-emerald-500/40 overflow-hidden shadow-2xl">
+      <div class="px-4 py-3 bg-[#0a0c0a] border-b border-emerald-950 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm">
+            🤖
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-white">ZenBoost AI Support</h4>
+            <span class="text-[9px] text-emerald-400 flex items-center gap-1 font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> အမြဲတမ်း အဆင်သင့်ရှိသည်
+            </span>
+          </div>
+        </div>
+        <button onclick="closeAiChatModal()" class="w-7 h-7 rounded-xl bg-neutral-900 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+          ✕
+        </button>
+      </div>
+
+      <div id="aiChatMessages" class="flex-1 p-3.5 overflow-y-auto space-y-2.5 text-xs">
+        <div class="bg-neutral-900 border border-emerald-950/80 p-2.5 rounded-2xl rounded-tl-none max-w-[85%] text-slate-200">
+          မင်္ဂလာပါခင်ဗျာ! ZenBoostMm AI Bot ဖြစ်ပါတယ်။ ငွေဖြည့်ခြင်း၊ Order တင်ခြင်း သို့မဟုတ် ဝန်ဆောင်မှုများနှင့် ပတ်သက်ပြီး မရှင်းလင်းတာရှိရင် မေးမြန်းနိုင်ပါတယ်ခင်ဗျာ။
+        </div>
+      </div>
+
+      <form id="aiChatForm" class="p-2.5 bg-[#0a0c0a] border-t border-emerald-950 flex gap-2">
+        <input type="text" id="aiUserInput" required placeholder="မေးချင်သည်များကို ရေးပါ..." class="flex-1 bg-neutral-900 border border-emerald-950 focus:border-emerald-500 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none">
+        <button type="submit" class="px-3.5 py-2 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-md shadow-emerald-500/20">
+          ပို့မည်
+        </button>
+      </form>
+    </div>
+            </div>
+    <script type="module">
     import { supabase, ADMIN_EMAIL } from './js/config.js';
 
+    // Global State Variables
     let currentUser = null;
     let userBalance = 0;
     let allServices = [];
@@ -286,70 +323,121 @@
     let selectedPlatform = 'All';
     let selectedCategory = '';
     let selectedService = null;
+    let searchDebounceTimer = null;
 
-    // Platform Logos Map for Categories & Dropdowns
-    const PLATFORM_LOGOS = {
-      tiktok: `<img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" class="w-3.5 h-3.5 object-contain inline-block">`,
-      telegram: `<img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="w-3.5 h-3.5 rounded-full object-cover inline-block">`,
-      facebook: `<img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" class="w-3.5 h-3.5 rounded-full object-cover inline-block">`,
-      youtube: `<img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" class="w-3.5 h-3.5 object-contain inline-block">`,
-      instagram: `<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" class="w-3.5 h-3.5 rounded-md object-cover inline-block">`
+    // Platform Brand Icons Map (Crisp & Transparent)
+    const PLATFORM_ICONS = {
+      tiktok: `<img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" class="w-4 h-4 object-contain inline-block">`,
+      telegram: `<img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" class="w-4 h-4 rounded-full object-cover inline-block">`,
+      facebook: `<img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" class="w-4 h-4 rounded-full object-cover inline-block">`,
+      youtube: `<img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" class="w-4 h-4 object-contain inline-block">`,
+      instagram: `<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" class="w-4 h-4 rounded-md object-cover inline-block">`
     };
 
-    function getCategoryLogo(catName, platformName) {
-      const text = `${platformName || ''} ${catName || ''}`.toLowerCase();
-      if (text.includes('tiktok')) return PLATFORM_LOGOS.tiktok;
-      if (text.includes('telegram')) return PLATFORM_LOGOS.telegram;
-      if (text.includes('facebook') || text.includes('fb')) return PLATFORM_LOGOS.facebook;
-      if (text.includes('youtube') || text.includes('yt')) return PLATFORM_LOGOS.youtube;
-      if (text.includes('instagram') || text.includes('ig')) return PLATFORM_LOGOS.instagram;
-      return '<span>📂</span>';
+    function resolveCategoryLogo(catName, platformName) {
+      const matchText = `${platformName || ''} ${catName || ''}`.toLowerCase();
+      if (matchText.includes('tiktok')) return PLATFORM_ICONS.tiktok;
+      if (matchText.includes('telegram')) return PLATFORM_ICONS.telegram;
+      if (matchText.includes('facebook') || matchText.includes('fb')) return PLATFORM_ICONS.facebook;
+      if (matchText.includes('youtube') || matchText.includes('yt')) return PLATFORM_ICONS.youtube;
+      if (matchText.includes('instagram') || matchText.includes('ig')) return PLATFORM_ICONS.instagram;
+      return `<span class="text-emerald-400">📂</span>`;
     }
 
-    // 1. Initialize Dashboard
+    // 1. Initial Load & Auth Check
     async function initUserDashboard() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-      currentUser = user;
+      try {
+        const { data: { user }, error: authErr } = await supabase.auth.getUser();
+        if (authErr || !user) {
+          window.location.replace("login.html");
+          return;
+        }
+        currentUser = user;
 
-      if (user.email === ADMIN_EMAIL) {
-        document.getElementById('adminMenuLink')?.classList.remove('hidden');
-      }
+        // Admin Link Access Control
+        if (user.email === ADMIN_EMAIL) {
+          const adminBtn = document.getElementById('adminMenuLink');
+          if (adminBtn) adminBtn.classList.remove('hidden');
+        }
 
-      await Promise.all([loadUserProfile(), loadAllServices()]);
+        // Fetch User Data & Services concurrently
+        await Promise.all([
+          loadUserProfile(),
+          loadAllServices()
+        ]);
+
+        // Realtime Subscription for Balance Updates
+        setupRealtimeSubscription();
+
+      } catch (err) {
+        console.error("Dashboard Init Error:", err);
+      }
     }
 
-    // 2. Load User Profile
+    // 2. Fetch User Profile
     async function loadUserProfile() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
         .single();
 
+      if (error) {
+        console.error("Profile Fetch Error:", error);
+        return;
+      }
+
       if (data) {
         userBalance = Number(data.balance || 0);
-        document.getElementById('userBalanceDisplay').innerText = `${userBalance.toLocaleString()} MMK`;
-        document.getElementById('bannerBalance').innerText = `${userBalance.toLocaleString()} MMK`;
-        document.getElementById('userUsernameDisplay').innerText = `မင်္ဂလာပါ ${data.username || currentUser.email.split('@')[0]}`;
+        const formattedBal = `${userBalance.toLocaleString()} MMK`;
+        
+        const balDisp = document.getElementById('userBalanceDisplay');
+        const banDisp = document.getElementById('bannerBalance');
+        const nameDisp = document.getElementById('userUsernameDisplay');
+
+        if (balDisp) balDisp.innerText = formattedBal;
+        if (banDisp) banDisp.innerText = formattedBal;
+        if (nameDisp) nameDisp.innerText = `မင်္ဂလာပါ ${data.username || currentUser.email.split('@')[0]}`;
       }
     }
 
-    // 3. Load Services
+    // Realtime Balance Sync
+    function setupRealtimeSubscription() {
+      supabase
+        .channel(`public:profiles:${currentUser.id}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${currentUser.id}`
+        }, payload => {
+          if (payload.new && typeof payload.new.balance !== 'undefined') {
+            userBalance = Number(payload.new.balance);
+            const formatted = `${userBalance.toLocaleString()} MMK`;
+            document.getElementById('userBalanceDisplay').innerText = formatted;
+            document.getElementById('bannerBalance').innerText = formatted;
+          }
+        })
+        .subscribe();
+    }
+
+    // 3. Load All Services
     async function loadAllServices() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('services')
         .select('*')
         .order('rate', { ascending: true });
+
+      if (error) {
+        console.error("Services Fetch Error:", error);
+        return;
+      }
 
       allServices = data || [];
       renderCategoryList();
     }
 
-    // 4. Platform Tabs Filter
+    // 4. Platform Selection Tabs
     window.filterPlatform = function(platform) {
       selectedPlatform = platform;
 
@@ -362,92 +450,125 @@
         activeBtn.className = "platform-tab px-3.5 py-2 rounded-2xl bg-emerald-500 text-black text-xs font-black whitespace-nowrap shadow-md shadow-emerald-500/20 flex items-center gap-2";
       }
 
+      // Reset Active Category & Service
       selectedCategory = '';
       selectedService = null;
-      document.getElementById('selectedCatText').innerHTML = `<span class="text-slate-400">-- Category တစ်ခုရွေးပါ --</span>`;
-      document.getElementById('selectedServText').innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
-      document.getElementById('selectedServText').classList.add('text-slate-400');
-      document.getElementById('servDropdownBtn').disabled = true;
-      document.getElementById('serviceDetailsBox').classList.add('hidden');
-      calculateCharge();
 
+      const catText = document.getElementById('selectedCatText');
+      if (catText) catText.innerHTML = `<span class="text-slate-400">-- Category တစ်ခုရွေးပါ --</span>`;
+
+      const servText = document.getElementById('selectedServText');
+      if (servText) {
+        servText.innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
+        servText.classList.add('text-slate-400');
+      }
+
+      const servBtn = document.getElementById('servDropdownBtn');
+      if (servBtn) servBtn.disabled = true;
+
+      const detailsBox = document.getElementById('serviceDetailsBox');
+      if (detailsBox) detailsBox.classList.add('hidden');
+
+      calculateCharge();
       renderCategoryList();
     };
 
-    // 5. Render Categories with Brand Logos
+        // 5. Render Categories with Platform Logo Support
     function renderCategoryList() {
       let filtered = allServices;
       if (selectedPlatform !== 'All') {
         filtered = allServices.filter(s => (s.platform || '').toLowerCase() === selectedPlatform.toLowerCase());
       }
 
-      const categories = [...new Set(filtered.map(s => s.category))];
+      const categories = [...new Set(filtered.map(s => s.category).filter(Boolean))];
       const container = document.getElementById('catDropdownList');
+      if (!container) return;
       container.innerHTML = '';
 
       if (categories.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 p-2.5 text-center">Category မရှိသေးပါ</p>';
+        container.innerHTML = '<p class="text-xs text-slate-500 p-3 text-center">Category မရှိသေးပါ</p>';
         return;
       }
 
       categories.forEach(cat => {
-        const sampleService = filtered.find(s => s.category === cat);
-        const iconHtml = getCategoryLogo(cat, sampleService?.platform);
+        const sample = filtered.find(s => s.category === cat);
+        const iconHtml = resolveCategoryLogo(cat, sample?.platform);
 
-        const item = document.createElement('button');
-        item.type = "button";
-        item.className = "w-full text-left p-2.5 rounded-xl hover:bg-neutral-900 text-xs text-slate-200 transition font-medium flex items-center justify-between";
-        item.innerHTML = `
-          <div class="flex items-center gap-2">
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = "w-full text-left p-2.5 rounded-xl hover:bg-neutral-900 text-xs text-slate-200 transition font-medium flex items-center justify-between";
+        btn.innerHTML = `
+          <div class="flex items-center gap-2.5">
             ${iconHtml}
-            <span>${cat}</span>
+            <span class="font-semibold">${cat}</span>
           </div>
           <span class="text-[10px] text-emerald-400 font-mono">Select</span>
         `;
-        item.onclick = () => selectCategory(cat, iconHtml);
-        container.appendChild(item);
+        btn.onclick = () => selectCategory(cat, iconHtml);
+        container.appendChild(btn);
       });
     }
 
     window.selectCategory = function(cat, iconHtml) {
       selectedCategory = cat;
-      const displayIcon = iconHtml || getCategoryLogo(cat);
-      document.getElementById('selectedCatText').innerHTML = `
-        <div class="flex items-center gap-2 text-white font-bold">
-          ${displayIcon}
-          <span>${cat}</span>
-        </div>
-      `;
-      document.getElementById('catDropdownList').classList.add('hidden');
+      const displayIcon = iconHtml || resolveCategoryLogo(cat);
+      
+      const catText = document.getElementById('selectedCatText');
+      if (catText) {
+        catText.innerHTML = `
+          <div class="flex items-center gap-2.5 text-white font-bold">
+            ${displayIcon}
+            <span>${cat}</span>
+          </div>
+        `;
+      }
 
-      document.getElementById('servDropdownBtn').disabled = false;
-      document.getElementById('selectedServText').innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
-      document.getElementById('selectedServText').classList.add('text-slate-400');
+      document.getElementById('catDropdownList')?.classList.add('hidden');
+
+      const servBtn = document.getElementById('servDropdownBtn');
+      if (servBtn) servBtn.disabled = false;
+
+      const servText = document.getElementById('selectedServText');
+      if (servText) {
+        servText.innerText = "-- ဝန်ဆောင်မှုတစ်ခု ရွေးပါ --";
+        servText.classList.add('text-slate-400');
+      }
+
       selectedService = null;
-      document.getElementById('serviceDetailsBox').classList.add('hidden');
+      document.getElementById('serviceDetailsBox')?.classList.add('hidden');
       calculateCharge();
 
       renderServicesList();
     };
 
-    // 6. Render Services
+    // 6. Render Services List with Explicit Service ID (#ID)
     function renderServicesList() {
       filteredServices = allServices.filter(s => s.category === selectedCategory);
       const container = document.getElementById('servDropdownList');
+      if (!container) return;
       container.innerHTML = '';
 
+      if (filteredServices.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 p-3 text-center">ဝန်ဆောင်မှု မရှိသေးပါ</p>';
+        return;
+      }
+
       filteredServices.forEach(s => {
+        const servId = s.provider_service_id || s.id;
         const item = document.createElement('div');
-        item.className = "p-2.5 rounded-xl bg-neutral-900/60 hover:bg-neutral-900 cursor-pointer border border-emerald-950/60 hover:border-emerald-800 transition space-y-1";
+        item.className = "p-3 rounded-2xl bg-neutral-900/70 hover:bg-neutral-900 cursor-pointer border border-emerald-950/70 hover:border-emerald-800 transition space-y-1.5";
         item.onclick = () => selectServiceItem(s);
         item.innerHTML = `
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold text-white leading-snug">${s.name}</span>
-            <span class="text-xs font-black text-emerald-400 ml-2 whitespace-nowrap">${Number(s.rate).toLocaleString()} MMK</span>
+          <div class="flex justify-between items-start gap-2">
+            <span class="text-xs font-bold text-white leading-snug">
+              <span class="text-emerald-400 font-mono font-bold mr-1 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">#${servId}</span>
+              ${s.name}
+            </span>
+            <span class="text-xs font-black text-emerald-400 whitespace-nowrap">${Number(s.rate).toLocaleString()} MMK</span>
           </div>
-          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-            <span>Min: ${s.min_qty} - Max: ${s.max_qty}</span>
-            <span>${s.time || ''}</span>
+          <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono">
+            <span>Min: ${Number(s.min_qty).toLocaleString()} - Max: ${Number(s.max_qty).toLocaleString()}</span>
+            <span class="text-emerald-400 font-semibold">${s.time || 'Normal Speed'}</span>
           </div>
         `;
         container.appendChild(item);
@@ -456,31 +577,50 @@
 
     function selectServiceItem(s) {
       selectedService = s;
-      document.getElementById('selectedServText').innerText = `${s.name} — ${Number(s.rate).toLocaleString()} MMK`;
-      document.getElementById('selectedServText').classList.remove('text-slate-400');
-      document.getElementById('servDropdownList').classList.add('hidden');
+      const servId = s.provider_service_id || s.id;
 
-      document.getElementById('detailTime').innerText = s.time || 'Normal';
-      document.getElementById('detailMin').innerText = Number(s.min_qty).toLocaleString();
-      document.getElementById('detailMax').innerText = Number(s.max_qty).toLocaleString();
-      document.getElementById('detailNote').innerText = s.note || 'လင့်ခ်မှန်ကန်စွာ ထည့်သွင်းပေးပါ။';
-      document.getElementById('serviceDetailsBox').classList.remove('hidden');
+      const servText = document.getElementById('selectedServText');
+      if (servText) {
+        servText.innerHTML = `
+          <span class="text-white font-bold">
+            <span class="text-emerald-400 font-mono mr-1">#${servId}</span>
+            ${s.name} — <span class="text-emerald-400">${Number(s.rate).toLocaleString()} MMK</span>
+          </span>
+        `;
+        servText.classList.remove('text-slate-400');
+      }
 
-      const isCustomComment = (s.name || '').toLowerCase().includes('custom comments');
-      const commentsContainer = document.getElementById('commentsContainer');
+      document.getElementById('servDropdownList')?.classList.add('hidden');
+
+      const detailTime = document.getElementById('detailTime');
+      const detailMin = document.getElementById('detailMin');
+      const detailMax = document.getElementById('detailMax');
+      const detailNote = document.getElementById('detailNote');
+
+      if (detailTime) detailTime.innerText = s.time || 'Normal Speed (10 - 60 mins)';
+      if (detailMin) detailMin.innerText = Number(s.min_qty).toLocaleString();
+      if (detailMax) detailMax.innerText = Number(s.max_qty).toLocaleString();
+      if (detailNote) detailNote.innerText = s.note || 'လင့်ခ်ကို သေချာစစ်ဆေးပြီး Public ထားရှိပေးပါ။';
+
+      document.getElementById('serviceDetailsBox')?.classList.remove('hidden');
+
+      const isCustomComments = (s.name || '').toLowerCase().includes('custom comments');
+      const commentsBox = document.getElementById('commentsContainer');
       const qtyInput = document.getElementById('orderQuantity');
 
-      if (isCustomComment) {
-        commentsContainer.classList.remove('hidden');
-        qtyInput.readOnly = true;
-      } else {
-        commentsContainer.classList.add('hidden');
-        qtyInput.readOnly = false;
+      if (commentsBox && qtyInput) {
+        if (isCustomComments) {
+          commentsBox.classList.remove('hidden');
+          qtyInput.readOnly = true;
+        } else {
+          commentsBox.classList.add('hidden');
+          qtyInput.readOnly = false;
+        }
       }
 
       calculateCharge();
-    }
-        // 7. Calculate Charge
+      }
+          // 7. Calculate Charge
     function calculateCharge() {
       if (!selectedService) {
         document.getElementById('totalCharge').innerText = "0 MMK";
@@ -499,7 +639,7 @@
       calculateCharge();
     });
 
-    // 8. Submit Order & Show Prominent Modal
+    // 8. Submit Order & Show Complete Success Modal
     document.getElementById('orderForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -524,6 +664,7 @@
       btn.innerText = "Order တင်နေပါသည်... ⏳";
 
       const remainingBal = userBalance - charge;
+      const servId = selectedService.provider_service_id || selectedService.id;
 
       // 1. Deduct Balance
       const { error: balErr } = await supabase
@@ -537,13 +678,13 @@
         return alert("Error: " + balErr.message);
       }
 
-      // 2. Insert Order
+      // 2. Insert Order Record
       const { data: newOrder, error: orderErr } = await supabase
         .from('orders')
         .insert([{
           user_id: currentUser.id,
-          service_id: selectedService.provider_service_id || selectedService.id,
-          service_name: `[#${selectedService.provider_service_id || selectedService.id}] ${selectedService.name}`,
+          service_id: servId,
+          service_name: `[#${servId}] ${selectedService.name}`,
           target_link: link,
           quantity: qty,
           charge: charge,
@@ -561,14 +702,14 @@
         return alert("Order မှတ်တမ်းတင်ရာတွင် အမှားဖြစ်သည်: " + orderErr.message);
       }
 
-      // Update Local Balance
+      // Update Local State Display
       userBalance = remainingBal;
       document.getElementById('userBalanceDisplay').innerText = `${userBalance.toLocaleString()} MMK`;
       document.getElementById('bannerBalance').innerText = `${userBalance.toLocaleString()} MMK`;
 
       // Fill Full Details in Success Modal
       document.getElementById('modalOrderId').innerText = `#${newOrder.numeric_id || newOrder.id.slice(0, 8)}`;
-      document.getElementById('modalOrderService').innerText = `[#${selectedService.provider_service_id || selectedService.id}] ${selectedService.name}`;
+      document.getElementById('modalOrderService').innerText = `[#${servId}] ${selectedService.name}`;
       document.getElementById('modalOrderLink').innerText = link;
       document.getElementById('modalOrderLink').href = link;
       document.getElementById('modalOrderQty').innerText = qty.toLocaleString();
@@ -584,7 +725,7 @@
       calculateCharge();
     });
 
-    // 9. UI Helpers
+    // 9. UI Navigation & Drawer Controls
     window.toggleMenu = function() {
       document.getElementById('sideDrawer').classList.toggle('-translate-x-full');
       document.getElementById('drawerOverlay').classList.toggle('hidden');
