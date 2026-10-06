@@ -663,7 +663,6 @@
         container.appendChild(item);
       });
     }
-
     document.getElementById('addServiceForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const provider_id = document.getElementById('serviceProviderSelect').value;
@@ -677,12 +676,26 @@
       const time = document.getElementById('servTime').value.trim();
       const note = document.getElementById('servNote').value.trim();
 
+      // ရွေးထားသော Provider ၏ အမည်ကို ရယူခြင်း (api_provider အတွက်)
+      const selectedProv = allProviders.find(p => p.id === provider_id);
+      const api_provider = selectedProv ? selectedProv.name : 'manual';
+
       const btn = document.getElementById('saveServiceBtn');
       btn.disabled = true;
       btn.innerText = "သိမ်းနေသည်...";
 
       const { error } = await supabase.from('services').insert([{
-        provider_id, provider_service_id, platform, category, name, rate, min_qty, max_qty, time, note
+        provider_id: provider_id || null,
+        api_provider: api_provider, // <-- not-null constraint အတွက် ထည့်သွင်းပေးထားပါသည်
+        provider_service_id,
+        platform,
+        category,
+        name,
+        rate,
+        min_qty,
+        max_qty,
+        time,
+        note
       }]);
 
       btn.disabled = false;
@@ -693,6 +706,7 @@
       await loadServices();
       alert("Service အောင်မြင်စွာ ထည့်ပြီးပါပြီ!");
     });
+    
 
     window.deleteService = async function(id) {
       if (!confirm("ဤ Service ကို ဖျက်ရန် သေချာပါသလား?")) return;
