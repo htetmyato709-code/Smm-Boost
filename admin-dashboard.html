@@ -36,7 +36,7 @@
 
   <main class="max-w-xl mx-auto p-4 space-y-4">
 
-    <!-- Top 3 Metric Cards (Exact Match to Picture) -->
+    <!-- Top 3 Metric Cards -->
     <div class="grid grid-cols-3 gap-2.5">
       <div class="glow-card rounded-2xl p-3 text-center border border-emerald-500/30">
         <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">TOTAL WEBSITE ORDERS</p>
@@ -73,7 +73,7 @@
       <button onclick="switchTab('orders')" id="tabBtn-orders" class="admin-tab active px-3.5 py-1.5 rounded-xl bg-emerald-600 text-black text-xs font-black whitespace-nowrap">
         🛒 Orders
       </button>
-      <button onclick="switchTab('services')" id="tabBtn-services" class="admin-tab active px-3.5 py-1.5 rounded-xl bg-emerald-600 text-black text-xs font-black whitespace-nowrap">
+      <button onclick="switchTab('services')" id="tabBtn-services" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
         📦 Services
       </button>
       <button onclick="switchTab('providers')" id="tabBtn-providers" class="admin-tab px-3.5 py-1.5 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-300 text-xs font-bold whitespace-nowrap">
@@ -89,8 +89,30 @@
         📥 Topups
       </button>
     </div>
-        <!-- 1. SECTION: Services Management & List -->
-    <section id="tabSec-services" class="space-y-4">
+
+    <!-- 0. SECTION: Orders Management (Status & Refund System) -->
+    <section id="tabSec-orders" class="space-y-3">
+      <div class="flex justify-between items-center px-1">
+        <p class="text-xs font-bold text-slate-300">Customer Orders စာရင်း</p>
+        <span class="text-[11px] text-emerald-400 font-bold" id="ordersCountBadge">0 Orders</span>
+      </div>
+
+      <!-- Filter by Status -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 hide-scrollbar text-[11px]">
+        <button onclick="filterAdminOrders('all')" class="order-filter-btn active px-3 py-1 rounded-xl bg-emerald-500 text-black font-bold whitespace-nowrap" id="filter-all">အားလုံး</button>
+        <button onclick="filterAdminOrders('pending')" class="order-filter-btn px-3 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-400 font-bold whitespace-nowrap" id="filter-pending">Pending</button>
+        <button onclick="filterAdminOrders('processing')" class="order-filter-btn px-3 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-400 font-bold whitespace-nowrap" id="filter-processing">Processing</button>
+        <button onclick="filterAdminOrders('completed')" class="order-filter-btn px-3 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-400 font-bold whitespace-nowrap" id="filter-completed">Completed</button>
+        <button onclick="filterAdminOrders('canceled')" class="order-filter-btn px-3 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-400 font-bold whitespace-nowrap" id="filter-canceled">Canceled / Refunded</button>
+      </div>
+
+      <div id="adminOrdersListContainer" class="space-y-3">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 1. SECTION: Services Management -->
+    <section id="tabSec-services" class="hidden space-y-4">
       <div class="glow-card p-5 rounded-3xl border border-emerald-500/30 space-y-3.5">
         <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Service အသစ်ထည့်သွင်းရန်</h3>
         <form id="addServiceForm" class="space-y-3">
@@ -192,7 +214,7 @@
       <div id="usersListContainer" class="space-y-2"></div>
     </section>
 
-    <!-- 4. SECTION: Payments Management (Add/Manage Payment Methods) -->
+    <!-- 4. SECTION: Payments Management -->
     <section id="tabSec-payments" class="hidden space-y-4">
       <div class="glow-card p-5 rounded-3xl border border-emerald-500/30 space-y-3">
         <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Payment Method အသစ်ထည့်ရန်</h3>
@@ -282,11 +304,13 @@
         <button onclick="saveUserBalance()" id="saveBalBtn" class="flex-1 py-2 rounded-xl bg-emerald-500 text-black font-black text-xs">သိမ်းဆည်းမည်</button>
       </div>
     </div>
-  </div>
-    <!-- JavaScript System & Scale Trend Chart -->
+          </div>
+                <!-- JavaScript System: Part 1 -->
   <script type="module">
     import { supabase, ADMIN_EMAIL } from './js/config.js';
 
+    let allOrders = [];
+    let currentFilter = 'all';
     let allProviders = [];
     let allServices = [];
     let allUsers = [];
@@ -304,6 +328,7 @@
 
       await Promise.all([
         loadDashboardStats(),
+        loadAdminOrders(),
         loadProviders(),
         loadServices(),
         loadUsers(),
@@ -312,7 +337,134 @@
       ]);
     }
 
-    // 1. Metrics & Scale Trend Curve Chart (Neon Glow Green)
+    // Orders Management with Status Updates & Refund
+    async function loadAdminOrders() {
+      const { data: orders, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      allOrders = orders || [];
+      const badge = document.getElementById('ordersCountBadge');
+      if (badge) badge.innerText = `${allOrders.length} Orders`;
+
+      renderFilteredOrders();
+    }
+
+    window.filterAdminOrders = function(status) {
+      currentFilter = status;
+      document.querySelectorAll('.order-filter-btn').forEach(btn => {
+        btn.className = "order-filter-btn px-3 py-1 rounded-xl bg-neutral-900 border border-emerald-950 text-slate-400 font-bold whitespace-nowrap";
+      });
+      const activeBtn = document.getElementById(`filter-${status}`);
+      if (activeBtn) {
+        activeBtn.className = "order-filter-btn active px-3 py-1 rounded-xl bg-emerald-500 text-black font-bold whitespace-nowrap";
+      }
+      renderFilteredOrders();
+    };
+
+    function renderFilteredOrders() {
+      const container = document.getElementById('adminOrdersListContainer');
+      if (!container) return;
+
+      let list = allOrders;
+      if (currentFilter !== 'all') {
+        list = allOrders.filter(o => (o.status || '').toLowerCase() === currentFilter.toLowerCase());
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">Order မှတ်တမ်း မရှိပါ။</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      list.forEach(o => {
+        const item = document.createElement('div');
+        item.className = "glow-card p-3.5 rounded-2xl border border-emerald-500/30 space-y-2 text-xs";
+
+        let badgeStyle = "bg-amber-500/20 text-amber-400 border-amber-500/30";
+        if (o.status === 'completed') badgeStyle = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+        if (o.status === 'processing') badgeStyle = "bg-blue-500/20 text-blue-400 border-blue-500/30";
+        if (o.status === 'canceled') badgeStyle = "bg-rose-500/20 text-rose-400 border-rose-500/30";
+
+        item.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-mono font-bold text-emerald-400">#${o.numeric_id || o.id.slice(0, 8)}</span>
+              <p class="font-bold text-white mt-0.5">${o.service_name || 'Service'}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${badgeStyle} uppercase">
+              ${o.status || 'pending'}
+            </span>
+          </div>
+
+          <div class="bg-neutral-950 p-2 rounded-xl border border-emerald-950/60 text-[11px] space-y-1">
+            <div class="flex justify-between text-slate-400">
+              <span>Link:</span>
+              <a href="${o.target_link}" target="_blank" class="text-emerald-400 truncate max-w-[200px] hover:underline">${o.target_link}</a>
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>Qty: <strong class="text-white">${Number(o.quantity).toLocaleString()}</strong></span>
+              <span>Charge: <strong class="text-emerald-400">${Number(o.charge).toLocaleString()} MMK</strong></span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-1.5 pt-1">
+            <button onclick="changeOrderStatus('${o.id}', 'pending')" class="py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-amber-400 border border-emerald-950 text-[10px] font-bold">Pending</button>
+            <button onclick="changeOrderStatus('${o.id}', 'processing')" class="py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-blue-400 border border-emerald-950 text-[10px] font-bold">Process</button>
+            <button onclick="changeOrderStatus('${o.id}', 'completed')" class="py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-emerald-400 border border-emerald-950 text-[10px] font-bold">Complete</button>
+            <button onclick="refundAndCancelOrder('${o.id}', '${o.user_id}', ${o.charge}, '${o.status}')" class="py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 text-[10px] font-bold">Refund ↩</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Change Status Directly
+    window.changeOrderStatus = async function(orderId, status) {
+      const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
+      if (error) return alert("Update Error: " + error.message);
+      await loadAdminOrders();
+    };
+
+    // Cancel Order and Auto-Refund Money back to User Balance
+    window.refundAndCancelOrder = async function(orderId, userId, charge, currentStatus) {
+      if (currentStatus === 'canceled') {
+        return alert("ဤ Order သည် ငွေအမ်းပြီး (Canceled) ဖြစ်ပြီးသား ဖြစ်ပါသည်!");
+      }
+
+      if (!confirm(`ဤ Order ကို Canceled ပြုလုပ်ပြီး ငွေကျသင့်ငွေ ${Number(charge).toLocaleString()} MMK ကို User ထံသို့ ပြန်အမ်းမည် သေချာပါသလား?`)) {
+        return;
+      }
+
+      // 1. Fetch user's current balance
+      const { data: userProfile, error: userErr } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', userId)
+        .single();
+
+      if (userErr || !userProfile) {
+        return alert("User Account ရှာမတွေ့ပါ: " + (userErr ? userErr.message : ''));
+      }
+
+      const refundedBalance = Number(userProfile.balance || 0) + Number(charge);
+
+      // 2. Update user balance
+      const { error: balErr } = await supabase
+        .from('profiles')
+        .update({ balance: refundedBalance })
+        .eq('id', userId);
+
+      if (balErr) return alert("ငွေပြန်အမ်းရာတွင် အမှားဖြစ်သည်: " + balErr.message);
+
+      // 3. Update order status to canceled
+      await supabase.from('orders').update({ status: 'canceled' }).eq('id', orderId);
+
+      await Promise.all([loadAdminOrders(), loadUsers(), loadDashboardStats()]);
+      alert("Order ကို ပယ်ဖျက်ပြီး User ထံ ငွေအောင်မြင်စွာ ပြန်အမ်းပြီးပါပြီ!");
+    };
+        // Dashboard Stats & Chart Logic
     async function loadDashboardStats() {
       const { data: orders } = await supabase.from('orders').select('charge, created_at');
       const totalOrdersCount = orders ? orders.length : 0;
@@ -348,7 +500,8 @@
       if (yesterdayVal === 0) diffRate = todayVal > 0 ? 100 : 0;
       else diffRate = Math.round(((todayVal - yesterdayVal) / yesterdayVal) * 100);
 
-      document.getElementById('trendRateDisplay').innerText = `${diffRate >= 0 ? '+' : ''}${diffRate}% Growth`;
+      const trendDisplay = document.getElementById('trendRateDisplay');
+      if (trendDisplay) trendDisplay.innerText = `${diffRate >= 0 ? '+' : ''}${diffRate}% Growth`;
 
       const ctx = document.getElementById('ordersScaleChart')?.getContext('2d');
       if (!ctx) return;
@@ -384,9 +537,9 @@
       });
     }
 
-    // 2. Tab Navigation
+    // Switch Tabs Navigation
     window.switchTab = function(tabName) {
-      ['services', 'providers', 'users', 'payments', 'deposits'].forEach(t => {
+      ['orders', 'services', 'providers', 'users', 'payments', 'deposits'].forEach(t => {
         document.getElementById(`tabSec-${t}`)?.classList.add('hidden');
         const btn = document.getElementById(`tabBtn-${t}`);
         if (btn) {
@@ -401,7 +554,7 @@
       }
     };
 
-    // 3. Providers Management
+    // Providers Management
     async function loadProviders() {
       const { data } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
       allProviders = data || [];
@@ -415,6 +568,7 @@
       }
 
       const container = document.getElementById('providersContainer');
+      if (!container) return;
       if (allProviders.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Provider မရှိသေးပါ။</p>';
         return;
@@ -468,12 +622,14 @@
       if (selected) label.innerText = `[${selected.name}] Service ID`;
       else label.innerText = "Provider Service ID";
     });
-        // 4. Services Management & Edit System
+
+    // Services Management & Edit System
     async function loadServices() {
       const { data } = await supabase.from('services').select('*, providers(name)').order('created_at', { ascending: false });
       allServices = data || [];
 
       const container = document.getElementById('servicesContainer');
+      if (!container) return;
       if (allServices.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Service မရှိသေးပါ။</p>';
         return;
@@ -495,7 +651,7 @@
               <p class="text-xs font-bold text-white mt-1 leading-snug">${s.name}</p>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0">
-              <button onclick="openEditServiceModal('${s.id}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-bold">ပြင်မည် ✏️</button>
+              <button onclick="openEditServiceModal('${s.id}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-bold">ပြင်မည် ✏️️</button>
               <button onclick="deleteService('${s.id}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold">ဖျက်မည်</button>
             </div>
           </div>
@@ -544,7 +700,6 @@
       await loadServices();
     };
 
-    // Edit Service Modal Controls
     window.openEditServiceModal = function(id) {
       const s = allServices.find(x => x.id === id);
       if (!s) return;
@@ -585,16 +740,18 @@
       alert("Service အချက်အလက်များ ပြင်ဆင်ပြီးပါပြီ!");
     });
 
-    // 5. Users Management
+    // Users Management
     async function loadUsers() {
       const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
       allUsers = data || [];
-      document.getElementById('usersCountBadge').innerText = `${allUsers.length} Users`;
+      const badge = document.getElementById('usersCountBadge');
+      if (badge) badge.innerText = `${allUsers.length} Users`;
       renderUsersList(allUsers);
     }
 
     function renderUsersList(users) {
       const container = document.getElementById('usersListContainer');
+      if (!container) return;
       if (users.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">User မရှိပါ။</p>';
         return;
@@ -660,12 +817,13 @@
       alert("Balance ပြင်ဆင်ပြီးပါပြီ!");
     };
 
-    // 6. Payments Management (Add/Delete Payment Methods)
+    // Payments Management
     async function loadPayments() {
       const { data } = await supabase.from('payment_methods').select('*').order('created_at', { ascending: false });
       allPayments = data || [];
 
       const container = document.getElementById('paymentsContainer');
+      if (!container) return;
       if (allPayments.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Payment Method မရှိသေးပါ။</p>';
         return;
@@ -715,30 +873,35 @@
       await loadPayments();
     };
 
-    // 7. Topups (Deposits) Management
+    // Topups (Deposits) Management
     async function loadDeposits() {
-      const { data } = await supabase.from('deposits').select('*, profiles(username, email)').order('created_at', { ascending: false });
-      const deposits = data || [];
-      const pendingCount = deposits.filter(d => d.status === 'pending').length;
-      document.getElementById('pendingDepositsBadge').innerText = `${pendingCount} Pending`;
+      const { data: deposits } = await supabase
+        .from('deposits')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const pendingCount = deposits ? deposits.filter(d => d.status === 'pending').length : 0;
+      const badge = document.getElementById('pendingDepositsBadge');
+      if (badge) badge.innerText = `${pendingCount} Pending`;
 
       const container = document.getElementById('depositsListContainer');
-      if (deposits.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Topup မှတ်တမ်း မရှိပါ။</p>';
+      if (!container) return;
+      if (!deposits || deposits.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">Topup မှတ်တမ်း မရှိပါ။</p>';
         return;
       }
 
       container.innerHTML = '';
       deposits.forEach(d => {
         const item = document.createElement('div');
-        item.className = "glow-card p-3 rounded-2xl space-y-2";
+        item.className = "glow-card p-3.5 rounded-2xl border border-emerald-500/30 space-y-2 text-xs";
         let statusColor = d.status === 'approved' ? 'text-emerald-400' : (d.status === 'rejected' ? 'text-rose-400' : 'text-amber-400');
 
         item.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-xs font-bold text-white">${d.profiles?.username || d.sender_name || 'Member'}</p>
-              <p class="text-[10px] text-slate-400 font-mono">${d.profiles?.email || '-'}</p>
+              <p class="font-bold text-white">${d.sender_name || 'Customer'}</p>
+              <p class="text-[10px] text-slate-400 font-mono">User ID: ${d.user_id ? d.user_id.slice(0, 8) : '-'}</p>
               <p class="text-[10px] text-emerald-400 mt-0.5">Method: ${d.payment_method || 'KBZ/Wave'}</p>
             </div>
             <div class="text-right">
@@ -753,10 +916,10 @@
               </a>
             </div>
           ` : ''}
-          ${d.status === 'pending' ? `
+                    ${d.status === 'pending' ? `
             <div class="flex gap-2 pt-1 border-t border-emerald-950/60">
-              <button onclick="approveDeposit('${d.id}', '${d.user_id}',${d.amount})" class="flex-1 py-1 rounded-xl bg-emerald-500 text-black font-black text-[11px]">Approve</button>
-              <button onclick="rejectDeposit('${d.id}')" class="flex-1 py-1 rounded-xl bg-rose-600 text-white font-bold text-[11px]">Reject</button>
+              <button onclick="approveDeposit('${d.id}', '${d.user_id}',${d.amount})" class="flex-1 py-1.5 rounded-xl bg-emerald-500 text-black font-black text-[11px]">Approve</button>
+              <button onclick="rejectDeposit('${d.id}')" class="flex-1 py-1.5 rounded-xl bg-rose-600 text-white font-bold text-[11px]">Reject</button>
             </div>
           ` : ''}
         `;
